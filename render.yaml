@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: luckypath-demo
+    runtime: docker
+    plan: free
+    region: virginia
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: off
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: LUCKYPATH_DATA_DIR
+        value: /app/data
+      - key: LUCKYPATH_SOURCE_ARCHIVE
+        value: /app/public/luckypath-source.zip
+# RENDER_EXTERNAL_URL supplies the exact HTTPS origin automatically.
+# Optional: add LUCKYPATH_ORS_API_KEY in Render's Environment page.
+# No key is required for the map, Saju/astrology, or our recommended route.
+

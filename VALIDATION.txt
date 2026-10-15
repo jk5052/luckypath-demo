@@ -1,0 +1,23 @@
+LuckyPath demo preparation - 2026-10-15
+
+Passed locally on macOS / CPython 3.12:
+- Canonical Python suite: 252 tests.
+- JavaScript controller/model suite: 59 tests.
+- Public adapter suite in a clean dependency environment: 11 tests.
+- Same public adapter suite against the standalone package and its bundled data:
+  11 tests, including actual Saju, astrology and personalized route calculations.
+- Actual Gunicorn HTTP smoke: 10 checks covering pages/config/context, real route,
+  real profile, host/origin/key-write boundaries and source ZIP integrity.
+
+The standalone check caught a missing initial-route fixture; green-request.json
+is now included in the package. No existing local server was restarted, and no
+live API key was extracted or included. Smoke inputs were synthetic.
+
+Not yet verified:
+- Linux Docker image build (Docker is unavailable on this machine).
+- Render deployment, public HTTPS/browser behavior, free-tier memory/cold start.
+- Live external services using a deployment-specific ORS secret.
+
+Public source release was approved by the owner on 2026-10-15.
+Hosting deployment still requires account connection and verification.
+This report documents local preparation, not a successful public deployment.

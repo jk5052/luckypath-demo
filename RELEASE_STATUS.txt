@@ -1,0 +1,3 @@
+Public source release approved by the owner on 2026-10-15.
+Hosting deployment is not yet verified; source publication alone is not a running demo.
+Docker/Linux build and real hosting resource limits require verification on the deployment host.

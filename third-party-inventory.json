@@ -1,0 +1,601 @@
+[
+  {
+    "package": "annotated-types",
+    "version": "0.8.0",
+    "home_page": "",
+    "project_urls": [
+      "Homepage, https://github.com/annotated-types/annotated-types",
+      "Source, https://github.com/annotated-types/annotated-types",
+      "Changelog, https://github.com/annotated-types/annotated-types/releases"
+    ],
+    "notice_files": [
+      "licenses/annotated-types/annotated_types-0.8.0.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/annotated-types/0.8.0/"
+  },
+  {
+    "package": "astronomy-engine",
+    "version": "2.1.19",
+    "home_page": "https://github.com/cosinekitty/astronomy",
+    "project_urls": [],
+    "notice_files": [
+      "licenses/astronomy-engine/astronomy_engine-2.1.19.dist-info/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/astronomy-engine/2.1.19/"
+  },
+  {
+    "package": "attrs",
+    "version": "26.1.0",
+    "home_page": "",
+    "project_urls": [
+      "Documentation, https://www.attrs.org/",
+      "Changelog, https://www.attrs.org/en/stable/changelog.html",
+      "GitHub, https://github.com/python-attrs/attrs",
+      "Funding, https://github.com/sponsors/hynek",
+      "Tidelift, https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=pypi"
+    ],
+    "notice_files": [
+      "licenses/attrs/attrs-26.1.0.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/attrs/26.1.0/"
+  },
+  {
+    "package": "blinker",
+    "version": "1.9.0",
+    "home_page": "",
+    "project_urls": [
+      "Chat, https://discord.gg/pallets",
+      "Documentation, https://blinker.readthedocs.io",
+      "Source, https://github.com/pallets-eco/blinker/"
+    ],
+    "notice_files": [
+      "licenses/blinker/blinker-1.9.0.dist-info/LICENSE.txt"
+    ],
+    "distribution": "https://pypi.org/project/blinker/1.9.0/"
+  },
+  {
+    "package": "cattrs",
+    "version": "26.2.1",
+    "home_page": "",
+    "project_urls": [
+      "Homepage, https://catt.rs",
+      "Changelog, https://catt.rs/en/latest/history.html",
+      "Bug Tracker, https://github.com/python-attrs/cattrs/issues",
+      "Repository, https://github.com/python-attrs/cattrs",
+      "Documentation, https://catt.rs/en/stable/"
+    ],
+    "notice_files": [
+      "licenses/cattrs/cattrs-26.2.1.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/cattrs/26.2.1/"
+  },
+  {
+    "package": "certifi",
+    "version": "2026.7.22",
+    "home_page": "https://github.com/certifi/python-certifi",
+    "project_urls": [
+      "Source, https://github.com/certifi/python-certifi"
+    ],
+    "notice_files": [
+      "licenses/certifi/certifi-2026.7.22.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/certifi/2026.7.22/"
+  },
+  {
+    "package": "charset-normalizer",
+    "version": "3.5.2",
+    "home_page": "",
+    "project_urls": [
+      "Changelog, https://github.com/jawah/charset_normalizer/blob/master/CHANGELOG.md",
+      "Documentation, https://charset-normalizer.readthedocs.io/",
+      "Code, https://github.com/jawah/charset_normalizer",
+      "Issue tracker, https://github.com/jawah/charset_normalizer/issues"
+    ],
+    "notice_files": [
+      "licenses/charset-normalizer/charset_normalizer-3.5.2.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/charset-normalizer/3.5.2/"
+  },
+  {
+    "package": "click",
+    "version": "8.5.0",
+    "home_page": "",
+    "project_urls": [
+      "Changes, https://click.palletsprojects.com/page/changes/",
+      "Chat, https://discord.gg/pallets",
+      "Documentation, https://click.palletsprojects.com/",
+      "Donate, https://palletsprojects.com/donate",
+      "Source, https://github.com/pallets/click/"
+    ],
+    "notice_files": [
+      "licenses/click/click-8.5.0.dist-info/licenses/LICENSE.txt"
+    ],
+    "distribution": "https://pypi.org/project/click/8.5.0/"
+  },
+  {
+    "package": "defusedxml",
+    "version": "0.7.1",
+    "home_page": "https://github.com/tiran/defusedxml",
+    "project_urls": [],
+    "notice_files": [
+      "licenses/defusedxml/defusedxml-0.7.1.dist-info/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/defusedxml/0.7.1/"
+  },
+  {
+    "package": "flask",
+    "version": "3.1.3",
+    "home_page": "",
+    "project_urls": [
+      "Changes, https://flask.palletsprojects.com/page/changes/",
+      "Chat, https://discord.gg/pallets",
+      "Documentation, https://flask.palletsprojects.com/",
+      "Donate, https://palletsprojects.com/donate",
+      "Source, https://github.com/pallets/flask/"
+    ],
+    "notice_files": [
+      "licenses/flask/flask-3.1.3.dist-info/licenses/LICENSE.txt"
+    ],
+    "distribution": "https://pypi.org/project/flask/3.1.3/"
+  },
+  {
+    "package": "gunicorn",
+    "version": "26.2.0",
+    "home_page": "",
+    "project_urls": [
+      "Homepage, https://gunicorn.org",
+      "Documentation, https://gunicorn.org",
+      "Issue tracker, https://github.com/benoitc/gunicorn/issues",
+      "Source code, https://github.com/benoitc/gunicorn",
+      "Changelog, https://gunicorn.org/news/"
+    ],
+    "notice_files": [
+      "licenses/gunicorn/gunicorn-26.2.0.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/gunicorn/26.2.0/"
+  },
+  {
+    "package": "idna",
+    "version": "3.20",
+    "home_page": "",
+    "project_urls": [
+      "Changelog, https://github.com/kjd/idna/blob/master/HISTORY.md",
+      "Issue tracker, https://github.com/kjd/idna/issues",
+      "Source, https://github.com/kjd/idna"
+    ],
+    "notice_files": [
+      "licenses/idna/idna-3.20.dist-info/licenses/LICENSE.md"
+    ],
+    "distribution": "https://pypi.org/project/idna/3.20/"
+  },
+  {
+    "package": "itsdangerous",
+    "version": "2.2.0",
+    "home_page": "",
+    "project_urls": [
+      "Changes, https://itsdangerous.palletsprojects.com/changes/",
+      "Chat, https://discord.gg/pallets",
+      "Documentation, https://itsdangerous.palletsprojects.com/",
+      "Donate, https://palletsprojects.com/donate",
+      "Source, https://github.com/pallets/itsdangerous/"
+    ],
+    "notice_files": [
+      "licenses/itsdangerous/itsdangerous-2.2.0.dist-info/LICENSE.txt"
+    ],
+    "distribution": "https://pypi.org/project/itsdangerous/2.2.0/"
+  },
+  {
+    "package": "jinja2",
+    "version": "3.1.6",
+    "home_page": "",
+    "project_urls": [
+      "Changes, https://jinja.palletsprojects.com/changes/",
+      "Chat, https://discord.gg/pallets",
+      "Documentation, https://jinja.palletsprojects.com/",
+      "Donate, https://palletsprojects.com/donate",
+      "Source, https://github.com/pallets/jinja/"
+    ],
+    "notice_files": [
+      "licenses/jinja2/jinja2-3.1.6.dist-info/licenses/LICENSE.txt"
+    ],
+    "distribution": "https://pypi.org/project/jinja2/3.1.6/"
+  },
+  {
+    "package": "jplephem",
+    "version": "2.24",
+    "home_page": "https://github.com/brandon-rhodes/python-jplephem/",
+    "project_urls": [],
+    "notice_files": [
+      "licenses/jplephem/jplephem-2.24.dist-info/licenses/LICENSE.txt"
+    ],
+    "distribution": "https://pypi.org/project/jplephem/2.24/"
+  },
+  {
+    "package": "kerykeion",
+    "version": "6.0.5",
+    "home_page": "",
+    "project_urls": [
+      "Homepage, https://www.kerykeion.net/",
+      "Repository, https://github.com/g-battaglia/kerykeion",
+      "Documentation, https://www.kerykeion.net/python-library/docs/v6/",
+      "Changelog, https://github.com/g-battaglia/kerykeion/blob/main/CHANGELOG.md",
+      "Issues, https://github.com/g-battaglia/kerykeion/issues"
+    ],
+    "notice_files": [
+      "licenses/kerykeion/kerykeion-6.0.5.dist-info/licenses/AUTHORS",
+      "licenses/kerykeion/kerykeion-6.0.5.dist-info/licenses/LICENSE",
+      "licenses/kerykeion/kerykeion-6.0.5.dist-info/licenses/NOTICE",
+      "licenses/kerykeion/kerykeion/NOTICE",
+      "licenses/kerykeion/kerykeion/licenses/NotoSans-OFL.txt",
+      "licenses/kerykeion/kerykeion/licenses/NotoSansSymbols2-OFL.txt"
+    ],
+    "distribution": "https://pypi.org/project/kerykeion/6.0.5/"
+  },
+  {
+    "package": "libephemeris",
+    "version": "3.2.2",
+    "home_page": "",
+    "project_urls": [
+      "Homepage, https://github.com/g-battaglia/libephemeris",
+      "Documentation, https://github.com/g-battaglia/libephemeris#readme",
+      "Repository, https://github.com/g-battaglia/libephemeris",
+      "Issues, https://github.com/g-battaglia/libephemeris/issues",
+      "Changelog, https://github.com/g-battaglia/libephemeris/blob/main/CHANGELOG.md"
+    ],
+    "notice_files": [
+      "licenses/libephemeris/libephemeris-3.2.2.dist-info/licenses/LICENSE",
+      "licenses/libephemeris/libephemeris-3.2.2.dist-info/licenses/LICENSING.md",
+      "licenses/libephemeris/libephemeris-3.2.2.dist-info/licenses/NOTICE.md",
+      "licenses/libephemeris/libephemeris-3.2.2.dist-info/licenses/THIRD_PARTY_NOTICES.md"
+    ],
+    "distribution": "https://pypi.org/project/libephemeris/3.2.2/"
+  },
+  {
+    "package": "lunar-python",
+    "version": "1.4.8",
+    "home_page": "https://github.com/6tail/lunar-python",
+    "project_urls": [],
+    "notice_files": [
+      "licenses/lunar-python/lunar_python-1.4.8.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/lunar-python/1.4.8/"
+  },
+  {
+    "package": "markupsafe",
+    "version": "3.0.4",
+    "home_page": "",
+    "project_urls": [
+      "Donate, https://palletsprojects.com/donate",
+      "Documentation, https://markupsafe.palletsprojects.com/",
+      "Changes, https://markupsafe.palletsprojects.com/page/changes/",
+      "Source, https://github.com/pallets/markupsafe/",
+      "Chat, https://discord.gg/pallets"
+    ],
+    "notice_files": [
+      "licenses/markupsafe/markupsafe-3.0.4.dist-info/licenses/LICENSE.txt"
+    ],
+    "distribution": "https://pypi.org/project/markupsafe/3.0.4/"
+  },
+  {
+    "package": "numpy",
+    "version": "2.3.3",
+    "home_page": "",
+    "project_urls": [
+      "homepage, https://numpy.org",
+      "documentation, https://numpy.org/doc/",
+      "source, https://github.com/numpy/numpy",
+      "download, https://pypi.org/project/numpy/#files",
+      "tracker, https://github.com/numpy/numpy/issues",
+      "release notes, https://numpy.org/doc/stable/release"
+    ],
+    "notice_files": [
+      "licenses/numpy/numpy-2.3.3.dist-info/LICENSE.txt",
+      "licenses/numpy/numpy/_core/include/numpy/random/LICENSE.txt",
+      "licenses/numpy/numpy/ma/LICENSE",
+      "licenses/numpy/numpy/random/LICENSE.md"
+    ],
+    "distribution": "https://pypi.org/project/numpy/2.3.3/"
+  },
+  {
+    "package": "platformdirs",
+    "version": "4.13.0",
+    "home_page": "",
+    "project_urls": [
+      "Changelog, https://platformdirs.readthedocs.io/en/latest/changelog.html",
+      "Documentation, https://platformdirs.readthedocs.io",
+      "Homepage, https://github.com/tox-dev/platformdirs",
+      "Source, https://github.com/tox-dev/platformdirs",
+      "Tracker, https://github.com/tox-dev/platformdirs/issues"
+    ],
+    "notice_files": [
+      "licenses/platformdirs/platformdirs-4.13.0.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/platformdirs/4.13.0/"
+  },
+  {
+    "package": "pydantic",
+    "version": "2.14.1",
+    "home_page": "",
+    "project_urls": [
+      "Homepage, https://github.com/pydantic/pydantic",
+      "Documentation, https://pydantic.dev/docs/validation/latest/get-started/",
+      "Funding, https://github.com/sponsors/samuelcolvin",
+      "Source, https://github.com/pydantic/pydantic",
+      "Changelog, https://pydantic.dev/docs/validation/latest/get-started/changelog/"
+    ],
+    "notice_files": [
+      "licenses/pydantic/pydantic-2.14.1.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/pydantic/2.14.1/"
+  },
+  {
+    "package": "pydantic-core",
+    "version": "2.50.1",
+    "home_page": "https://github.com/pydantic/pydantic",
+    "project_urls": [
+      "Funding, https://github.com/sponsors/samuelcolvin",
+      "Homepage, https://github.com/pydantic",
+      "Source, https://github.com/pydantic/pydantic/tree/main/pydantic-core"
+    ],
+    "notice_files": [
+      "licenses/pydantic-core/pydantic_core-2.50.1.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/pydantic-core/2.50.1/"
+  },
+  {
+    "package": "pyerfa",
+    "version": "2.0.1.5",
+    "home_page": "",
+    "project_urls": [
+      "Homepage, https://github.com/liberfa/pyerfa"
+    ],
+    "notice_files": [
+      "licenses/pyerfa/pyerfa-2.0.1.5.dist-info/LICENSE.rst"
+    ],
+    "distribution": "https://pypi.org/project/pyerfa/2.0.1.5/"
+  },
+  {
+    "package": "pyproj",
+    "version": "3.7.1",
+    "home_page": "https://github.com/pyproj4/pyproj",
+    "project_urls": [
+      "homepage, https://pyproj4.github.io/pyproj/",
+      "documentation, https://pyproj4.github.io/pyproj/",
+      "repository, https://github.com/pyproj4/pyproj",
+      "changelog, https://pyproj4.github.io/pyproj/stable/history.html"
+    ],
+    "notice_files": [
+      "licenses/pyproj/pyproj-3.7.1.dist-info/LICENSE",
+      "licenses/pyproj/pyproj-3.7.1.dist-info/LICENSE_proj"
+    ],
+    "distribution": "https://pypi.org/project/pyproj/3.7.1/"
+  },
+  {
+    "package": "requests",
+    "version": "2.34.2",
+    "home_page": "",
+    "project_urls": [
+      "Documentation, https://requests.readthedocs.io",
+      "Source, https://github.com/psf/requests"
+    ],
+    "notice_files": [
+      "licenses/requests/requests-2.34.2.dist-info/licenses/LICENSE",
+      "licenses/requests/requests-2.34.2.dist-info/licenses/NOTICE"
+    ],
+    "distribution": "https://pypi.org/project/requests/2.34.2/"
+  },
+  {
+    "package": "requests-cache",
+    "version": "1.3.3",
+    "home_page": "",
+    "project_urls": [
+      "homepage, https://github.com/requests-cache/requests-cache",
+      "repository, https://github.com/requests-cache/requests-cache",
+      "documentation, https://requests-cache.readthedocs.io"
+    ],
+    "notice_files": [
+      "licenses/requests-cache/requests_cache-1.3.3.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/requests-cache/1.3.3/"
+  },
+  {
+    "package": "scipy",
+    "version": "1.17.1",
+    "home_page": "",
+    "project_urls": [
+      "homepage, https://scipy.org/",
+      "documentation, https://docs.scipy.org/doc/scipy/",
+      "source, https://github.com/scipy/scipy",
+      "download, https://github.com/scipy/scipy/releases",
+      "tracker, https://github.com/scipy/scipy/issues"
+    ],
+    "notice_files": [
+      "licenses/scipy/scipy-1.17.1.dist-info/LICENSE.txt",
+      "licenses/scipy/scipy/_lib/_uarray/LICENSE",
+      "licenses/scipy/scipy/fft/_pocketfft/LICENSE.md",
+      "licenses/scipy/scipy/integrate/LICENSE_DOP",
+      "licenses/scipy/scipy/spatial/qhull_src/COPYING_QHULL.txt"
+    ],
+    "distribution": "https://pypi.org/project/scipy/1.17.1/"
+  },
+  {
+    "package": "sgp4",
+    "version": "2.27",
+    "home_page": "https://github.com/brandon-rhodes/python-sgp4",
+    "project_urls": [],
+    "notice_files": [
+      "licenses/sgp4/sgp4-2.27.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/sgp4/2.27/"
+  },
+  {
+    "package": "shapely",
+    "version": "2.1.1",
+    "home_page": "",
+    "project_urls": [
+      "Documentation, https://shapely.readthedocs.io/",
+      "Repository, https://github.com/shapely/shapely"
+    ],
+    "notice_files": [
+      "licenses/shapely/shapely-2.1.1.dist-info/licenses/LICENSE.txt",
+      "licenses/shapely/shapely-2.1.1.dist-info/licenses/LICENSE_GEOS"
+    ],
+    "distribution": "https://pypi.org/project/shapely/2.1.1/"
+  },
+  {
+    "package": "simple-ascii-tables",
+    "version": "1.0.1",
+    "home_page": "https://pypi.org/project/simple-ascii-tables/",
+    "project_urls": [
+      "Repository, https://github.com/g-battaglia/simple-ascii-tables"
+    ],
+    "notice_files": [
+      "licenses/simple-ascii-tables/LICENSE",
+      "licenses/simple-ascii-tables/simple_ascii_tables-1.0.1.dist-info/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/simple-ascii-tables/1.0.1/"
+  },
+  {
+    "package": "skyfield",
+    "version": "1.55",
+    "home_page": "http://github.com/brandon-rhodes/python-skyfield/",
+    "project_urls": [],
+    "notice_files": [
+      "licenses/skyfield/skyfield-1.55.dist-info/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/skyfield/1.55/"
+  },
+  {
+    "package": "skyfield-data",
+    "version": "7.0.0",
+    "home_page": "https://github.com/brunobord/skyfield-data",
+    "project_urls": [],
+    "notice_files": [
+      "licenses/skyfield-data/skyfield_data-7.0.0.dist-info/licenses/COPYING"
+    ],
+    "distribution": "https://pypi.org/project/skyfield-data/7.0.0/"
+  },
+  {
+    "package": "svg-polish",
+    "version": "1.0.0",
+    "home_page": "",
+    "project_urls": [
+      "Homepage, https://github.com/g-battaglia/svg_polish",
+      "Repository, https://github.com/g-battaglia/svg_polish",
+      "Issues, https://github.com/g-battaglia/svg_polish/issues",
+      "Changelog, https://github.com/g-battaglia/svg_polish/blob/main/CHANGELOG.md"
+    ],
+    "notice_files": [
+      "licenses/svg-polish/svg_polish-1.0.0.dist-info/licenses/LICENSE",
+      "licenses/svg-polish/svg_polish-1.0.0.dist-info/licenses/NOTICE"
+    ],
+    "distribution": "https://pypi.org/project/svg-polish/1.0.0/"
+  },
+  {
+    "package": "typing-extensions",
+    "version": "4.16.0",
+    "home_page": "",
+    "project_urls": [
+      "Bug Tracker, https://github.com/python/typing_extensions/issues",
+      "Changes, https://github.com/python/typing_extensions/blob/main/CHANGELOG.md",
+      "Documentation, https://typing-extensions.readthedocs.io/",
+      "Home, https://github.com/python/typing_extensions",
+      "Q & A, https://github.com/python/typing/discussions",
+      "Repository, https://github.com/python/typing_extensions"
+    ],
+    "notice_files": [
+      "licenses/typing-extensions/typing_extensions-4.16.0.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/typing-extensions/4.16.0/"
+  },
+  {
+    "package": "typing-inspection",
+    "version": "0.4.4",
+    "home_page": "",
+    "project_urls": [
+      "Homepage, https://github.com/pydantic/typing-inspection",
+      "Documentation, https://pydantic.github.io/typing-inspection/dev/",
+      "Source, https://github.com/pydantic/typing-inspection",
+      "Changelog, https://github.com/pydantic/typing-inspection/blob/main/HISTORY.md"
+    ],
+    "notice_files": [
+      "licenses/typing-inspection/typing_inspection-0.4.4.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/typing-inspection/0.4.4/"
+  },
+  {
+    "package": "tzdata",
+    "version": "2026.5",
+    "home_page": "https://github.com/python/tzdata",
+    "project_urls": [
+      "Bug Reports, https://github.com/python/tzdata/issues",
+      "Source, https://github.com/python/tzdata",
+      "Documentation, https://tzdata.python.org"
+    ],
+    "notice_files": [
+      "licenses/tzdata/tzdata-2026.5.dist-info/licenses/LICENSE",
+      "licenses/tzdata/tzdata-2026.5.dist-info/licenses/licenses/LICENSE_APACHE"
+    ],
+    "distribution": "https://pypi.org/project/tzdata/2026.5/"
+  },
+  {
+    "package": "url-normalize",
+    "version": "3.0.1",
+    "home_page": "",
+    "project_urls": [
+      "Homepage, https://github.com/niksite/url-normalize",
+      "Repository, https://github.com/niksite/url-normalize",
+      "Issues, https://github.com/niksite/url-normalize/issues",
+      "Changelog, https://github.com/niksite/url-normalize/blob/master/CHANGELOG.md"
+    ],
+    "notice_files": [
+      "licenses/url-normalize/url_normalize-3.0.1.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/url-normalize/3.0.1/"
+  },
+  {
+    "package": "urllib3",
+    "version": "2.8.0",
+    "home_page": "",
+    "project_urls": [
+      "Changelog, https://github.com/urllib3/urllib3/blob/main/CHANGES.rst",
+      "Documentation, https://urllib3.readthedocs.io",
+      "Code, https://github.com/urllib3/urllib3",
+      "Issue tracker, https://github.com/urllib3/urllib3/issues",
+      "Security policy, https://urllib3.readthedocs.io/en/latest/security.html"
+    ],
+    "notice_files": [
+      "licenses/urllib3/urllib3-2.8.0.dist-info/licenses/LICENSE.txt"
+    ],
+    "distribution": "https://pypi.org/project/urllib3/2.8.0/"
+  },
+  {
+    "package": "werkzeug",
+    "version": "3.1.9",
+    "home_page": "",
+    "project_urls": [
+      "Changes, https://werkzeug.palletsprojects.com/page/changes/",
+      "Chat, https://discord.gg/pallets",
+      "Documentation, https://werkzeug.palletsprojects.com/",
+      "Donate, https://palletsprojects.com/donate",
+      "Source, https://github.com/pallets/werkzeug/"
+    ],
+    "notice_files": [
+      "licenses/werkzeug/werkzeug-3.1.9.dist-info/licenses/LICENSE.txt"
+    ],
+    "distribution": "https://pypi.org/project/werkzeug/3.1.9/"
+  },
+  {
+    "package": "zstandard",
+    "version": "0.25.0",
+    "home_page": "",
+    "project_urls": [
+      "Homepage, https://github.com/indygreg/python-zstandard",
+      "Documentation, https://python-zstandard.readthedocs.io/en/latest/"
+    ],
+    "notice_files": [
+      "licenses/zstandard/zstandard-0.25.0.dist-info/licenses/LICENSE"
+    ],
+    "distribution": "https://pypi.org/project/zstandard/0.25.0/"
+  }
+]

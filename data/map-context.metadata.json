@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "title": "Williamsburg offline GIS context",
+  "study_bbox": [
+    -73.97,
+    40.709,
+    -73.951,
+    40.724
+  ],
+  "display_bbox": [
+    -73.976,
+    40.703,
+    -73.945,
+    40.73
+  ],
+  "crs": "EPSG:4326",
+  "feature_counts": {
+    "land": 2,
+    "park": 196,
+    "building": 31,
+    "road": 6018,
+    "label": 51
+  },
+  "source_selection_counts": {
+    "parks": 196,
+    "buildings": 9040,
+    "displayed_building_polygon_parts_before_grouping": 9025,
+    "roads": 6045
+  },
+  "source_files": {
+    "land": {
+      "file": "geography/borough_boundaries.geojson",
+      "sha256": "7aa44d9fb611f2f518a226ff994a6516a261a8ce982ccf1e7b37d663687f443c"
+    },
+    "parks": {
+      "file": "osm/nyc_parks_osm.parquet",
+      "sha256": "2e8a0260a2c8a293d049f5ae3823b99c762f386914b6fbdc015e99eef8b8c5a3"
+    },
+    "buildings": {
+      "file": "geography/nyc_buildings.parquet",
+      "sha256": "0585b82a83969f223c42f0a8b17dc3c71fe755b4b832648ee58fc953f5735257"
+    },
+    "roads": {
+      "file": "osm/nyc_roads.parquet",
+      "sha256": "942c7582998d4c30a7cad31bf4108f3e0587cdce81070a908d3e34b619826881"
+    }
+  },
+  "source_dates": {
+    "land_retrieved": "2026-10-13",
+    "buildings_retrieved": "2026-10-13",
+    "osm_snapshot": "2026-10-12"
+  },
+  "sources": [
+    {
+      "name": "NYC Department of City Planning — Borough Boundaries (water excluded)",
+      "url": "https://data.cityofnewyork.us/City-Government/Borough-Boundaries/gthc-hcne"
+    },
+    {
+      "name": "NYC Office of Technology and Innovation — Building Footprints",
+      "url": "https://nycmaps-nyc.hub.arcgis.com/datasets/nyc::building/about"
+    },
+    {
+      "name": "OpenStreetMap contributors — roads and park polygons",
+      "url": "https://www.openstreetmap.org/copyright"
+    }
+  ],
+  "attribution": "© OpenStreetMap contributors · NYC DCP · NYC OTI",
+  "display_processing": {
+    "projected_crs": "EPSG:32618",
+    "rounding_decimals": 6,
+    "simplify_metres": {
+      "land": 1.5,
+      "parks": 1,
+      "buildings": 0.65,
+      "roads": 0.7
+    },
+    "padding_degrees": 0.006
+  },
+  "limitations": [
+    "Display context only; does not change routing measurements or calibration.",
+    "Background outside the supplied borough land polygons represents water within display_bbox only.",
+    "Basemap roads include nonwalkable context; the route engine separately filters walkability.",
+    "Park polygons and labels do not verify current public access, entrances, or opening hours.",
+    "Building placeholders and polygon parts smaller than 4 square metres are omitted for legibility."
+  ]
+}

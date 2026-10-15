@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "luckypath-engine"
+version = "0.3.0"
+description = "Standalone GIS routing migration of the Williamsburg LuckyPath Grasshopper prototype"
+requires-python = ">=3.12"
+dependencies = ["shapely>=2.0,<3", "pyproj>=3.6,<4", "numpy>=1.24,<3", "scipy>=1.11,<2", "lunar-python==1.4.8", "astronomy-engine==2.1.19", "kerykeion==6.0.5", "libephemeris==3.2.2"]
+
+[project.optional-dependencies]
+demo = ["Flask==3.1.3", "gunicorn==26.2.0"]
+
+[project.scripts]
+luckypath = "luckypath.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["luckypath*"]
+
+[tool.setuptools.package-data]
+luckypath = ["web/*.html", "web/*.css", "web/*.js", "web/*.json", "web/vendor/*.js", "web/vendor/*.css", "web/vendor/*.json", "web/vendor/LICENSE", "web/vendor/images/*.png"]
