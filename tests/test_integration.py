@@ -148,9 +148,14 @@ class IntegrationTests(unittest.TestCase):
     def test_metadata_counts_match_the_loaded_sources_and_feature_contract(self):
         metadata = self.engine.metadata()
         dataset = self.engine.dataset
-        self.assertEqual(metadata["osm"]["file"], "will.xml")
-        self.assertEqual(metadata["osm"]["source_nodes"], 23895)
-        self.assertEqual(metadata["osm"]["source_ways"], 5278)
+        if metadata.get("format") == "luckypath-nyc-window":
+            self.assertEqual(metadata["source_files"]["roads"]["file"], "osm/nyc_roads.parquet")
+            self.assertEqual(metadata["roads"]["included_walkable_ways"], 2556)
+            self.assertEqual(metadata["study_bbox_wgs84"], [-73.97, 40.709, -73.951, 40.724])
+        else:
+            self.assertEqual(metadata["osm"]["file"], "will.xml")
+            self.assertEqual(metadata["osm"]["source_nodes"], 23895)
+            self.assertEqual(metadata["osm"]["source_ways"], 5278)
         self.assertEqual(metadata["counts"]["nodes"], len(dataset.nodes))
         self.assertEqual(metadata["counts"]["edges"], len(dataset.edges))
         self.assertEqual(metadata["counts"]["trees"], len(dataset.trees))

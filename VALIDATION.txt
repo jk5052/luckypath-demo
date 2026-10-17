@@ -1,5 +1,22 @@
 LuckyPath demo preparation - 2026-10-15
 
+Routing performance update - 2026-10-16
+- Validated road geometry, full-road arcs and nearest-road spatial index are
+  prepared once per engine. Each trip shares snapped topology across objectives.
+- No route-result cache or retained user input was added.
+- 283 Python checks passed across the full suite and the corrected integration
+  rerun. The standalone package now includes its example request fixture and
+  accepts the shipped NYC-window provenance in the integration assertions.
+- 31 added checks cover the original routing/budget contracts, concurrent
+  requests, snapshot isolation and six exact full-response comparisons on NYC data.
+- Local unprofiled three-run median: original 1.172 s, prepared 0.173 s; exact
+  full-response equality. Hardware and hosting load affect these timings.
+- ORS environment configuration and an actual foot-walking request succeeded.
+- Same live request before this update: 15.735 s. Live post-update timing pending.
+
+The following records the initial preparation checks and limitations; Linux
+Docker and public HTTPS subsequently passed in the first deployment on Oct 15.
+
 Passed locally on macOS / CPython 3.12:
 - Canonical Python suite: 252 tests.
 - JavaScript controller/model suite: 59 tests.

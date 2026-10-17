@@ -17,6 +17,7 @@ from typing import Any
 from pyproj import Transformer
 from shapely.geometry import LineString, Point
 from shapely.ops import substring
+from shapely.strtree import STRtree
 
 
 _TO_METRES = Transformer.from_crs(4326, 32618, always_xy=True)
@@ -158,9 +159,14 @@ def _roads(dataset: Any, edge_costs: Mapping) -> list[_Road]:
     return roads
 
 
-def _snap(point: Point, roads: list[_Road], label: str, max_snap: float) -> dict:
+def _snap(point: Point, roads: list[_Road], label: str, max_snap: float, tree=None) -> dict:
     # Stable road order resolves equal-distance candidates deterministically.
-    road_index = min(range(len(roads)), key=lambda index: roads[index].line.distance(point))
+    if tree is None:
+        road_index = min(range(len(roads)), key=lambda index: roads[index].line.distance(point))
+    else:
+        indices, distances = tree.query_nearest(point, all_matches=True, return_distance=True)
+        road_index = min(zip(indices, distances), key=lambda item: (float(item[1]), int(item[0])))[0]
+        road_index = int(road_index)
     road = roads[road_index]
     distance_along = float(road.line.project(point))
     if distance_along <= _SNAP_EPSILON_M:
@@ -178,13 +184,18 @@ def _snap(point: Point, roads: list[_Road], label: str, max_snap: float) -> dict
             "point": snapped, "distance_m": distance, "edge_id": road.edge_id}
 
 
-def _graph(roads: list[_Road], snaps: dict) -> dict[tuple, list[_Arc]]:
+def _graph(roads: list[_Road], snaps: dict, cached_arcs=None) -> dict[tuple, list[_Arc]]:
     graph: dict[tuple, list[_Arc]] = {}
     by_road: dict[int, list[dict]] = {}
     for snap in snaps.values():
         by_road.setdefault(snap["road_index"], []).append(snap)
 
     for index, road in enumerate(roads):
+        if cached_arcs is not None and index not in by_road:
+            forward, backward = cached_arcs[index]
+            graph.setdefault(road.u, []).append(forward)
+            graph.setdefault(road.v, []).append(backward)
+            continue
         full_length = float(road.line.length)
         cuts = [(0.0, road.u), (full_length, road.v)]
         for snap in sorted(by_road.get(index, []), key=lambda item: item["along"]):
@@ -208,6 +219,67 @@ def _graph(roads: list[_Road], snaps: dict) -> dict[tuple, list[_Arc]]:
                 _Arc(u, cost, road.edge_id, tuple(reversed(coords)), length)
             )
     return graph
+
+
+class PreparedNetwork:
+    """Validated geometry snapshot shared by requests, without user inputs.
+
+    Cached arcs and Shapely geometries are immutable. Request-specific snaps,
+    split arcs and costs are always allocated separately. Rebuild this object
+    when loading a different dataset; it never observes later dataset edits.
+    """
+    def __init__(self, dataset):
+        self._roads = tuple(_roads(dataset, {edge.id: 0.0 for edge in dataset.edges}))
+        self._lengths = {road.edge_id: float(road.line.length) for road in self._roads}
+        self._tree = STRtree([road.line for road in self._roads])
+        cached = []
+        for road in self._roads:
+            # Use the same substring operation as the reference implementation,
+            # but only once at startup for roads without an interior snap.
+            segment = substring(road.line, 0.0, self._lengths[road.edge_id])
+            coords = tuple(tuple(coord) for coord in segment.coords)
+            length = float(segment.length)
+            cached.append((_Arc(road.v, 0.0, road.edge_id, coords, length),
+                           _Arc(road.u, 0.0, road.edge_id, tuple(reversed(coords)), length)))
+        self._arcs = tuple(cached)
+
+    def prepare(self, origin_lonlat, destination_lonlat, via_lonlat=None, max_snap_m=150):
+        max_snap = _number(max_snap_m, "max_snap_m")
+        inputs = {"origin": _input_point(origin_lonlat, "Origin")}
+        if via_lonlat is not None:
+            inputs["via"] = _input_point(via_lonlat, "Via point")
+        inputs["destination"] = _input_point(destination_lonlat, "Destination")
+        snaps = {label: _snap(point, self._roads, label.capitalize(), max_snap, self._tree)
+                 for label, (_, point) in inputs.items()}
+        graph = _graph(self._roads, snaps, self._arcs)
+        return PreparedTrip(inputs, snaps, graph, self._lengths)
+
+
+class PreparedTrip:
+    """One request's snapped topology, reusable across its routing objectives."""
+    def __init__(self, inputs, snaps, graph, lengths):
+        self._inputs, self._snaps, self._graph, self._lengths = inputs, snaps, graph, lengths
+
+    def _weighted_graph(self, edge_costs):
+        if not isinstance(edge_costs, Mapping):
+            raise RoutingError("edge_costs must map every road ID to its total cost.")
+        costs = {}
+        for edge_id in self._lengths:
+            if edge_id not in edge_costs:
+                raise RoutingError(f"Missing cost for road {edge_id}.")
+            costs[edge_id] = _number(edge_costs[edge_id], f"Cost for road {edge_id}")
+        return {node: [_Arc(arc.target,
+                           costs[arc.edge_id] * (arc.length / self._lengths[arc.edge_id]),
+                           arc.edge_id, arc.coords, arc.length) for arc in arcs]
+                for node, arcs in self._graph.items()}
+
+    def plan_route(self, edge_costs):
+        graph = self._weighted_graph(edge_costs)
+        return _serialize_route(_path_through(graph, self._snaps), self._inputs, self._snaps)
+
+    def plan_budget_route(self, edge_costs, max_network_length_m):
+        cap = _number(max_network_length_m, "max_network_length_m")
+        return _plan_budget_graph(self._inputs, self._snaps, self._weighted_graph(edge_costs), cap)
 
 
 def _shortest_path(
@@ -376,6 +448,11 @@ def plan_budget_route(
     inputs, snaps, graph = _prepare_graph(
         dataset, origin_lonlat, destination_lonlat, edge_costs, via_lonlat, max_snap_m,
     )
+
+    return _plan_budget_graph(inputs, snaps, graph, cap)
+
+
+def _plan_budget_graph(inputs, snaps, graph, cap):
 
     # Keep original arcs in every path so a search penalty can never leak into
     # serialized costs. Both via legs use the same metric before totals are tested.

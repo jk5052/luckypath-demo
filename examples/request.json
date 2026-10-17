@@ -1,0 +1,8 @@
+{
+  "origin": [-73.96748434054344, 40.71338592547376],
+  "destination": [-73.9546750305378, 40.71868863282547],
+  "weights": {"open": 0.25, "green": 0.8, "still": 0.05, "social": 1.0, "access": 1.0},
+  "targets": {"open": 0.8, "social": 0.8, "access": 0.8},
+  "alpha": 1.0,
+  "lucky_limit": 3
+}

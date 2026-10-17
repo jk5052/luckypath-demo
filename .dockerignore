@@ -13,7 +13,10 @@
 !licenses/**
 !tests/
 !tests/**
+!examples/
+!examples/request.json
 !README.txt
+!VALIDATION.txt
 !THIRD_PARTY_NOTICES.txt
 !third-party-inventory.json
 !LICENSE

@@ -15,7 +15,7 @@ from . import __version__
 from .data import load_prepared_dataset
 from .evidence import EvidenceIndex
 from .calibration import validate_feature_calibration, validate_calibration_sources
-from .routing import plan_route, plan_budget_route
+from .routing import PreparedNetwork
 from .scoring import Targets, Weights, evaluate_edge, number
 from .travel_time import (parse_time_budget, estimate_route_time, max_network_length,
                           POLICY_ID as TIME_POLICY_ID)
@@ -40,6 +40,8 @@ class Engine:
             validate_calibration_sources(self.dataset.metadata, self.features["calibration"])
         self.edge_by_id = {e.id: e for e in self.dataset.edges}
         self.evidence = EvidenceIndex(self.dataset, self.features)
+        self.network = PreparedNetwork(self.dataset)
+        self.distance_costs = {edge.id: edge.length for edge in self.dataset.edges}
 
     def recommend(self, request: dict) -> dict:
         if not isinstance(request, dict):
@@ -69,15 +71,14 @@ class Engine:
             for e in self.dataset.edges
         }
         costs = {key: value["cost"] for key, value in scored.items()}
-        routing_args = dict(
-            dataset=self.dataset,
+        trip = self.network.prepare(
             origin_lonlat=request["origin"], destination_lonlat=request["destination"],
             via_lonlat=request.get("via"), max_snap_m=max_snap,
         )
-        shortest = plan_route(edge_costs={e.id: e.length for e in self.dataset.edges}, **routing_args)
+        shortest = trip.plan_route(self.distance_costs)
         budget_result = None
         if time_budget is None:
-            personalized = plan_route(edge_costs=costs, **routing_args)
+            personalized = trip.plan_route(costs)
         else:
             shortest["time_estimate"] = estimate_route_time(shortest, time_budget)
             minimum = shortest["time_estimate"]["total_minutes"]
@@ -87,8 +88,7 @@ class Engine:
             if minimum > time_budget["max_minutes"]:
                 personalized = None
             else:
-                personalized = plan_budget_route(edge_costs=costs,
-                    max_network_length_m=max(0., cap), **routing_args)
+                personalized = trip.plan_budget_route(costs, max_network_length_m=max(0., cap))
                 personalized["time_estimate"] = estimate_route_time(personalized, time_budget)
                 if personalized["time_estimate"]["total_minutes"] > time_budget["max_minutes"] + 1e-9:
                     raise ValueError("Time-budget calculation failed its final limit check")

@@ -6,6 +6,7 @@ root = Path(__file__).resolve().parents[1]
 allowed_files = ['Dockerfile', '.dockerignore', 'pyproject.toml', 'requirements-demo.txt',
                  'render.yaml', 'README.txt', 'THIRD_PARTY_NOTICES.txt',
                  'third-party-inventory.json', 'LICENSE', 'RELEASE_STATUS.txt']
+allowed_files.extend(['examples/request.json', 'VALIDATION.txt'])
 allowed_dirs = ['luckypath', 'deploy', 'data', 'licenses', 'tests']
 paths = [root/name for name in allowed_files if (root/name).is_file()]
 for name in allowed_dirs:
