@@ -165,7 +165,7 @@
     ".gitignore": "f59278028ed41490451819d6aa388c0755a8df42e46e1fa762264cd4b9f9dead",
     "Dockerfile": "6a075bcb1e74cfbbfd22dff77cd7d4dfec0b09e084a1aef687eeb6afe890b706",
     "LICENSE": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
-    "README.txt": "70420ebd177b9475ab5d7f0fe22de4836444b0eb965b8ba9dcf947c4424540b2",
+    "README.txt": "49782664d1062620b99010df61f822e927aeb49153e10f6d75c8045cd2af491b",
     "RELEASE_STATUS.txt": "f1c5a96768d9c4bf27f566379b0ef01dce5e9f953f361fc7d307d95e96c4db49",
     "THIRD_PARTY_NOTICES.txt": "2af2acc615d283dd06311a75f4aafa0546d5a254ad8c72192329744990f6d71e",
     "VALIDATION.txt": "28e5ef0008d53e0be7a57f37dd6a9c86b660e93e06e8a820410530e5a901b2d8",
@@ -261,7 +261,7 @@
     "luckypath/scoring.py": "a1edd1a0c14924d00bcea4c918ef5368053462153fd31e9623a4d71ea69d9b91",
     "luckypath/server.py": "23ba905c73946b9e04250b75ad4c0018575279d4a6d6bc816db61f90a5e71d31",
     "luckypath/travel_time.py": "1f2dff2be08e08e145e798c1b4d31812b46240af45e350a4724943baa9c43fdd",
-    "luckypath/web/app.js": "1a4072284e51600cee8150ef21493223ca2042b0a3ef52ce6eb0a6b171e9059d",
+    "luckypath/web/app.js": "39109115613a02ffcc835de682ffcdb654fdfa4eb2fa8c106170c1ab00e141f9",
     "luckypath/web/external.js": "8885320848748d050ee007ca37a0d8dbcfdc9a5c853ef3c27c371b71cc4c9e41",
     "luckypath/web/index.html": "c927f54fd9b7b4259151a46e06c0a755b0c933a2edbf8761887c2e6ae55ce160",
     "luckypath/web/model.js": "c2bfcc64752dc3e87d96bc8d280fde26f8f5be811a62c8932b2bec49a8e7eddb",
@@ -277,8 +277,8 @@
     "luckypath/web/vendor/leaflet.css": "a7837102824184820dfa198d1ebcd109ff6d0ff9a2672a074b9a1b4d147d04c6",
     "luckypath/web/vendor/leaflet.js": "db49d009c841f5ca34a888c96511ae936fd9f5533e90d8b2c4d57596f4e5641a",
     "luckypath/web/vendor/provenance.json": "9760b138a7aadcdc601d2ddbab67422a7246a4df5288d6a9c8158cfdce1fa1ce",
-    "luckypath/webapp.py": "c9eabbcafe0289346aa1153fd44c579e51502d2c1eb3eb10cd0c331091893bd9",
-    "public/luckypath-source.zip": "9571fb820a58a1ad1d84942ea48a6a41ed9ce691945cdfe3657a6fbeb86b7f17",
+    "luckypath/webapp.py": "ffc9af64ddfb53764b6abb2cdded2c867c638e493988133b9302b0976cebec99",
+    "public/luckypath-source.zip": "64703d9401392fa388f03a7d1d01534e8677fa12acc2543344d8a98ee90f17b7",
     "pyproject.toml": "8aeaed8401967b3aa54672788efd3d98a3a82b14dd215caca758a7aaead74048",
     "render.yaml": "8401730ddeb0084b1fcad149e43b8e734a40af7b3a3b72862279105ab72c92fc",
     "requirements-demo.txt": "48c04160a6963ffbc89868561d16917442e8745e84b0bc119a8e63e691974366",
@@ -307,7 +307,7 @@
     "tests/test_scoring.py": "627e8ece7062e8e7b32d69863946433326b3885e96ae2efea5c61b60c2854115",
     "tests/test_travel_time.py": "01f80eedd3f60104d2b80df4bb00957edee7c5a7571fa0eb04d437b2b64a6229",
     "tests/test_web_model.mjs": "a2bf71a3793d9eb5421bb26b4b986f2a6c5543c41f6d6da03eabb83e0fad9745",
-    "tests/test_webapp.py": "788f48be0f0a2da5c75373d6c09208648fd67013faeb57ce506d14b1b00cb604",
+    "tests/test_webapp.py": "d4e11afb7805c156d75077a859e86da2ba2217149c203314478842a1c7f1ab04",
     "third-party-inventory.json": "24b615c458a29d645e4346fdabe2292212512ffacc0ae12c1edad6fd43f641d1"
   }
 }

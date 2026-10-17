@@ -18,6 +18,14 @@ from werkzeug.exceptions import HTTPException
 CSP = ("default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
        "connect-src 'self'; img-src 'self' data: blob:; font-src 'self'; "
        "frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+# Only the dedicated embed document is frameable, and only by this portfolio.
+# Loopback origins support the owner's existing portfolio development server.
+EMBED_PARENTS = (
+    "https://jayce-portfolio-phi.vercel.app",
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+)
+EMBED_CSP = CSP.replace("frame-ancestors 'none'", "frame-ancestors " + " ".join(EMBED_PARENTS))
 
 
 def public_origin(value):
@@ -107,8 +115,10 @@ def create_app(*, explore=None, origin=None, data_path=None, source_archive=None
     def headers(response):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
-        response.headers["Content-Security-Policy"] = CSP
-        response.headers["X-Frame-Options"] = "DENY"
+        embedded = request.endpoint == "embed" and response.status_code == 200
+        response.headers["Content-Security-Policy"] = EMBED_CSP if embedded else CSP
+        if not embedded:
+            response.headers["X-Frame-Options"] = "DENY"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
         response.headers["Strict-Transport-Security"] = "max-age=31536000"
         if "Cache-Control" not in response.headers:
@@ -140,6 +150,19 @@ def create_app(*, explore=None, origin=None, data_path=None, source_archive=None
     @app.get("/explore/")
     def index():
         return asset("index.html")
+
+    @app.get("/embed")
+    @app.get("/embed/")
+    def embed():
+        response = asset("index.html")
+        if response.status_code == 200:
+            # Keep Home inside the embeddable document. Legal/source pages open
+            # separately because all other documents retain their frame denial.
+            page = response.get_data(as_text=True).replace('href="/explore"', 'href="/embed"')
+            for path in ("/source", "/privacy"):
+                page = page.replace(f'href="{path}"', f'href="{path}" target="_blank" rel="noopener noreferrer"')
+            response.set_data(page)
+        return response
 
     @app.get("/explore/assets/<path:name>")
     def asset(name):

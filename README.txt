@@ -84,6 +84,17 @@ server and pilot remain unchanged.
    virtualenvs or private workspace documents. It excludes third-party installed
    binaries; pinned dependencies are obtained from their upstream distributions.
 
+8. Portfolio phone embed
+   Embed https://luckypath-demo.onrender.com/embed in the portfolio phone frame.
+   The document permits only https://jayce-portfolio-phi.vercel.app and the local
+   portfolio at http://127.0.0.1:3000 or http://localhost:3000 as frame ancestors.
+   All other documents retain frame denial; API origin checks are unchanged.
+   The frame sends only {type: 'luckypath:ready'} when its map and controls load.
+   Parents must verify both message origin and the iframe contentWindow.
+   Open /explore in a separate tab for the full app. Embedded storage availability
+   depends on the visitor's browser; profiles are never sent to the portfolio.
+   To use another portfolio domain, review and update EMBED_PARENTS in webapp.py.
+
 Official references
    https://render.com/docs/blueprint-spec
    https://render.com/docs/web-services

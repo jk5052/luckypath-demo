@@ -79,6 +79,30 @@ class PublicDemoTests(unittest.TestCase):
             self.assertEqual(response.status_code, 403)
             self.assertNotIn('Access-Control-Allow-Origin', response.headers)
 
+    def test_only_embed_document_allows_the_exact_portfolio_parents(self):
+        for path in ('/embed', '/embed/'):
+            page = self.get(path)
+            self.assertEqual(page.status_code, 200)
+            policy = page.headers['Content-Security-Policy']
+            ancestors = next(part.strip() for part in policy.split(';') if 'frame-ancestors' in part)
+            self.assertEqual(ancestors.split()[1:], [
+                'https://jayce-portfolio-phi.vercel.app',
+                'http://127.0.0.1:3000', 'http://localhost:3000'])
+            self.assertNotIn('X-Frame-Options', page.headers)
+            self.assertIn('href="/embed"', page.text)
+            self.assertIn('href="/source" target="_blank"', page.text)
+            self.assertIn('href="/privacy" target="_blank"', page.text)
+        for path in ('/explore', '/explore/', '/privacy', '/source', '/explore/config', '/embed/missing'):
+            page = self.get(path)
+            self.assertIn("frame-ancestors 'none'", page.headers['Content-Security-Policy'])
+            self.assertEqual(page.headers['X-Frame-Options'], 'DENY')
+        # The portfolio may frame the UI, but may not call the API as its own origin.
+        response = self.client.post('/explore/route', base_url=ORIGIN, json={},
+                                    headers={'Origin': 'https://jayce-portfolio-phi.vercel.app',
+                                             'Sec-Fetch-Site': 'cross-site'})
+        self.assertEqual(response.status_code, 403)
+        self.assertNotIn('Access-Control-Allow-Origin', response.headers)
+
     def test_public_key_changes_pilot_and_unbundled_files_are_unavailable(self):
         with patch.object(self.explore, 'external_settings', side_effect=AssertionError('must not execute')):
             self.assertEqual(self.post('/explore/external/settings', {'ors_api_key': 'synthetic-canary'}).status_code, 404)
