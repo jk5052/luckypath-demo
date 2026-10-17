@@ -53,20 +53,30 @@ export function routeBudgetView(result) {
       `Allow at least ${formatMinutes(budget.minimum_required_minutes)}. Add time or change your start, destination, or stop.`,
   };
 }
-export function routeRequestSnapshot({origin,destination,scores,via,time_budget}) {
+export const READING_ROUTE_KEYS = ['green','quiet','open_sky','vibrant'];
+export function readingRouteWeights(value) {
+  if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==4||
+    !READING_ROUTE_KEYS.every(key=>typeof value[key]==='number'&&Number.isFinite(value[key])&&value[key]>=0&&value[key]<=1)||
+    Math.abs(READING_ROUTE_KEYS.reduce((sum,key)=>sum+value[key],0)-1)>1e-8)
+    throw Error('The reading weights are invalid. Recalculate your profile.');
+  return Object.fromEntries(READING_ROUTE_KEYS.map(key=>[key,value[key]]));
+}
+export function routeRequestSnapshot({origin,destination,scores,via,time_budget,reading_weights}) {
   const request={origin:[...origin],destination:[...destination],profile_scores:{...scores},
     lucky_limit:0,time_budget:parseTimeBudget(time_budget,!!via)};
+  if(reading_weights!=null)request.reading_weights=readingRouteWeights(reading_weights);
   if(via)request.via=[...via.lonlat];
   return request;
 }
 export function routeDownload(result,request,source) {
   // Read the exact successful request, never live controls or birth inputs.
-  const profile_source=source?.kind==='independent-analyses'?{
+  const profile_source=['independent-analyses','route-maker-reading'].includes(source?.kind)?{
     kind:source.kind,analysis_version:source.analysis_version,saju_policy:source.saju_policy,
     astrology_policy:source.astrology_policy,fusion_policy:source.fusion_policy,
   }:{kind:'manual'};
   return {...result.geojson,properties:{...result.geojson?.properties,
     model_version:result.model_version,profile_source,profile_scores:{...request.profile_scores},
+    ...(request.reading_weights?{reading_weights:readingRouteWeights(request.reading_weights)}:{}),
     origin:[...request.origin],destination:[...request.destination],via:request.via?[...request.via]:null,
     time_budget:{...request.time_budget},budget:result.budget,
     time_estimates:{personalized:result.personalized?.time_estimate??null,shortest:result.shortest?.time_estimate??null},
@@ -107,18 +117,19 @@ export function createRevisionGate() {
   let revision=0;
   return {invalidate:()=>++revision,current:()=>revision,isCurrent:token=>token===revision};
 }
-export function routeExplanation(result,scores) {
+export function routeExplanation(result,scores,reading_weights=null) {
   if(result.budget?.status==='infeasible') return 'No route fits your available time. The shortest route is shown for reference and also exceeds your budget.';
   if(!result.personalized) return 'Could not calculate a route. Check your selections and try again.';
   const viaNote=result.explicit_via?' Both routes pass near your selected stop.':'';
   if(result.personalized.length_m<1e-6) return 'Your start and destination share the same walking point. Try another destination.'+viaNote;
-  const keys=['open','green','still'],names={open:'openness',green:'greenery',still:'quiet'};
-  const active=keys.filter(k=>scores[k]>1).sort((a,b)=>scores[b]-scores[a]);
+  const keys=reading_weights?READING_ROUTE_KEYS:['open','green','still'],names={open:'openness',green:'greenery',still:'quiet',quiet:'quiet',open_sky:'openness',vibrant:'street activity'};
+  if(reading_weights)scores=reading_weights;
+  const active=keys.filter(k=>scores[k]>(reading_weights?0:1)).sort((a,b)=>scores[b]-scores[a]);
   if(!active.length) return 'All route preferences are set to 1, so this route prioritizes distance.'+viaNote;
   const same=JSON.stringify(result.shortest.route.geometry)===JSON.stringify(result.personalized.route.geometry);
   if(same) return 'Your recommended and shortest routes are the same. Change your preferences or endpoints to compare.'+viaNote;
   const priority=active.filter(k=>scores[k]===scores[active[0]]).map(k=>names[k]).join(' + ');
-  return `This route gives more weight to ${priority}, balanced with distance.${viaNote}`;
+  return reading_weights?`Your reading prioritizes ${priority} among four available street indicators, balanced with distance and your time budget.${viaNote}`:`This route gives more weight to ${priority}, balanced with distance.${viaNote}`;
 }
 export function friendlyError(error) {
   const text=String(error?.message||error);

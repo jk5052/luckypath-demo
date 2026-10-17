@@ -28,7 +28,7 @@ VISIT_CATEGORIES = frozenset({
     "book_store", "museum", "art_gallery", "performing_arts_theater",
     "movie_theater", "community_center", "market", "gift_shop", "florist",
 })
-MODEL_METRICS = ("open", "green", "still")
+MODEL_METRICS = ("open", "green", "still", "social")
 RAW_METRICS = ("trees_within_radius", "major_road_distance_m")
 ASSET_TYPES = {
     "index.html": "text/html; charset=utf-8",
@@ -111,10 +111,10 @@ class ExploreService:
             "normalization": self.engine.normalization,
             "evidence": self.engine.evidence.metadata(),
             "profile": {
-                "version": "independent-analysis-v2",
+                "version": "route-maker-reading-v1",
                 "schema_version": 2,
                 "analysis_systems": ["saju", "astrology"],
-                "fusion_policy": "equal-experience-weights-v1",
+                "fusion_policy": "route-maker-quality-mean-v1",
                 "calendar": "gregorian",
                 "target_timezone": "America/New_York",
                 "default_target_date": datetime.now(ZoneInfo("America/New_York")).date().isoformat(),
@@ -124,6 +124,8 @@ class ExploreService:
             },
             "capabilities": {
                 "weights_affecting_route": ["open", "green", "still"],
+                "reading_weights_affecting_route": ["green", "quiet", "open_sky", "vibrant"],
+                "reading_unmeasured_axes": ["water", "sunlight", "rest", "culture"],
                 "weights_affecting_venues": ["social", "access"],
                 "profile_scale": {"min": 1, "max": 10, "zero_weight_at": 1},
                 "venue_radius_m": 120, "venue_limit": 10,
@@ -228,6 +230,7 @@ class ExploreService:
                 "open": "Normalized 8-ray horizontal building-clearance model; not measured sky view.",
                 "green": "Normalized 2015 Alive street-tree record count within 50 m of source-edge midpoints; not current canopy.",
                 "still": "Normalized distance from source-edge midpoints to major roads; not measured noise.",
+                "social": "Nearby place-type activity scores; not measured footfall or current atmosphere.",
                 "trees_within_radius": "Length-weighted midpoint record count, not unique trees along the route.",
                 "major_road_distance_m": "Length-weighted midpoint distance to mapped major roads, in metres.",
             },

@@ -140,7 +140,10 @@ def create_app(*, explore=None, origin=None, data_path=None, source_archive=None
 
     @app.get("/health")
     def health():
-        return json_response({"ok": True, "service": "LuckyPath", "mode": "public-demo"})
+        from .independent_profile import PROFILE_VERSION
+        from .reading_routing import POLICY_ID
+        return json_response({"ok": True, "service": "LuckyPath", "mode": "public-demo",
+                              "analysis_version": PROFILE_VERSION, "reading_routing_policy": POLICY_ID})
 
     @app.get("/")
     def home():

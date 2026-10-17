@@ -48,13 +48,14 @@ function fixture({storage = memoryStorage(), seed = true, optionalElements = tru
     $('birth-unknown').checked = false;
     // Native form.reset() does not reset the disabled property.
   };
-  const requests = [], applied = [], identities = [];
+  const requests = [], applied = [], identities = [], invalidations = [];
   $('birth-house-system').value = 'P';
   const controller = createProfileController({
     api(path, options) {
       return new Promise((resolve, reject) => requests.push({path, options, resolve, reject}));
     },
     onApply(scores) { applied.push(scores); },
+    onInvalidate() { invalidations.push(true); },
     onIdentity(identity) { identities.push(identity); },
   });
   controller.configure({schema_version: 2, version: 'independent-analysis-v2',
@@ -65,7 +66,17 @@ function fixture({storage = memoryStorage(), seed = true, optionalElements = tru
     $('birth-timezone').value = 'Asia/Seoul';
     $('birth-house-system').value = 'P';
   }
-  return {$, requests, applied, controller, identities, storage};
+  return {$, requests, applied, controller, identities, storage, invalidations};
+}
+
+function originalReading(){
+  const event={encounter:.2,opportunity:.3,discovery:.5};
+  const quality={activation:.1,receptivity:.1,clarity:.15,expansion:.3,grounding:.15,flow:.2};
+  const routing_weights={green:.232456789,quiet:.267543211,open_sky:.2,vibrant:.3};
+  const source_street_weights={green:.15,water:.1,sunlight:.1,open_sky:.1,quiet:.15,vibrant:.2,rest:.1,culture:.1};
+  const individual={event,quality,evidence:[{id:'original.rule',rule_id:'original-rule',label:'Fixture rule',fact:'Synthetic calculation fact',quality}],omissions:[]};
+  return {version:'route-maker-reading-v1',status:'ready',saju:individual,astrology:individual,combined:{event,quality},source_street_weights,routing_weights,
+    coverage:{supported:[],omitted:['water','sunlight','rest','culture'].map(source=>({source,label:source,reason:'Not measured in this dataset.'}))}};
 }
 
 function profile(value = 7) {
@@ -73,7 +84,7 @@ function profile(value = 7) {
   const independent = system => ({
     system, status: 'ready', analysis: {}, highlights: [], omissions: [],
     profile: {
-      status: 'ready', policy_id: `${system}-experimental-v1`,
+      status: 'ready', policy_id: `route-maker-${system}-v1`,
       profile_scores: {...scores},
       score_details: Object.fromEntries(keys.map(key => [key, {
         rounded: value, unrounded: value, signals: [], contributions: [],
@@ -82,11 +93,12 @@ function profile(value = 7) {
     },
   });
   return {
-    schema_version: 2, profile_version: 'independent-analysis-v2', profile_status: 'ready',
+    schema_version: 2, profile_version: 'route-maker-reading-v1', profile_status: 'ready',
+    route_maker_reading: originalReading(),
     target: {date: '2026-10-13', timezone: 'America/New_York', reference: '뉴욕 현지 시각 정오'},
     systems: {saju: independent('saju'), astrology: independent('astrology')},
     combined: {
-      status: 'ready', policy_id: 'equal-experience-weights-v1', profile_scores: scores,
+      status: 'ready', policy_id: 'route-maker-quality-mean-v1', profile_scores: scores, routing_weights: originalReading().routing_weights,
       score_details: Object.fromEntries(keys.map(key => [key, {
         saju: value, astrology: value, rounded: value, unrounded: value, difference: 0,
       }])),
@@ -477,4 +489,48 @@ test('native validation reveals collapsed ancestors before focusing a field and 
   assert.equal(f.$('profile-status').textContent, 'Check the highlighted field to continue.');
   assert.equal(f.$('profile-apply').disabled, false);
   assert.deepEqual(f.requests, []);
+});
+
+
+test('original reading uses exact four weights and shows all stages without stale five-score averaging', async () => {
+  const f=fixture();await completeFirst(f);
+  assert.deepEqual(f.controller.routeWeights(),originalReading().routing_weights);
+  assert.equal(f.controller.routeSource().kind,'route-maker-reading');
+  assert.equal(f.$('reading-trip').hidden,false);
+  assert.equal(f.$('reading-trip-event').textContent,'Discovery');
+  assert.equal(f.$('reading-trip-qualities').textContent,'Expansion + Flow');
+  const text=element=>[element.textContent,...element.children.flatMap(child=>[text(child)])].join(' ');
+  const rendered=text(f.$('profile-breakdown'));
+  for(const expected of ['Three event themes','Six experience qualities','Eight original street weights','Not measured','quality stages'])assert.ok(rendered.includes(expected),expected);
+  assert.doesNotMatch(rendered,/rounded once|Independent preferences/);
+  const weights=f.controller.routeWeights();weights.green=1;
+  assert.equal(f.controller.routeWeights().green,.232456789,'callers cannot mutate stored reading weights');
+});
+
+test('manual, stale and cleared profiles cannot leak automatic weights into later routes', async () => {
+  const f=fixture();await completeFirst(f);
+  const before=f.invalidations.length;
+  f.controller.manual();
+  assert.equal(f.controller.routeWeights(),null);
+  assert.deepEqual(f.controller.routeSource(),{kind:'manual'});
+  assert.equal(f.$('reading-trip').hidden,true);
+  await f.$('profile-reapply').emit('click');
+  assert.deepEqual(f.controller.routeWeights(),originalReading().routing_weights);
+  f.$('birth-time').value='12:40';await f.$('birth-form').emit('input');
+  assert.equal(f.controller.mode(),'stale');
+  assert.equal(f.controller.routeWeights(),null);
+  assert.equal(f.$('reading-trip').hidden,true);
+  assert.ok(f.invalidations.length>before);
+  await completeFirst(f);
+  f.controller.clear();assert.equal(f.controller.routeWeights(),null);
+});
+
+test('unavailable and malformed original weights never replace route preferences', async () => {
+  for(const mutate of [p=>p.combined.routing_weights.green=NaN,p=>delete p.combined.routing_weights.vibrant,
+    p=>p.combined.routing_weights.water=.1,p=>p.route_maker_reading.status='unavailable',
+    p=>p.profile_version='independent-analysis-v2']){
+    const f=fixture(),pending=f.$('birth-form').emit('submit'),response=profile();mutate(response);
+    f.requests[0].resolve(response);await pending;
+    assert.deepEqual(f.applied,[]);assert.equal(f.controller.routeWeights(),null);
+  }
 });

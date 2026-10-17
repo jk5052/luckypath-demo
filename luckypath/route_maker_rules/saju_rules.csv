@@ -1,0 +1,21 @@
+signal_type,signal,event,quality,weight,explanation,basis_type,reference,source_claim,design_decision,verification_status
+ten_god,비견,encounter,grounding,0.55,cooperation and networks with peers,no_external_basis,,,,pending
+ten_god,겁재,encounter,activation,0.50,competition and stimulation — tension among people,no_external_basis,,,,pending
+ten_god,식신,discovery,expansion,0.65,expression and new production,no_external_basis,,,,pending
+ten_god,상관,discovery,activation,0.60,attempts that break the existing frame,no_external_basis,,,,pending
+ten_god,정재,opportunity,grounding,0.65,stable resources and steady transactions,no_external_basis,,,,pending
+ten_god,편재,opportunity,activation,0.70,external resources and practical opportunities,no_external_basis,,,,pending
+ten_god,정관,opportunity,clarity,0.60,"roles, responsibility, recognition",no_external_basis,,,,pending
+ten_god,편관,opportunity,activation,0.55,challenging duties and opportunity under pressure,no_external_basis,,,,pending
+ten_god,정인,discovery,receptivity,0.60,"learning, help, patronage",classical,『淵海子平』「論印綬」; https://www.chinese-classics.org/read/shushu/mingli/yuan-hai-zi-ping/001,인수를 나를 생하고 돕는 관계로 설명하며 음양이 다른 생조를 정인으로 구분한다. 부모의 도움에 관한 서술도 있다.,도움을 받아들이는 상황을 receptivity로 배움의 기회를 discovery로 번역했다. 학습·발견이라는 경험 분류와 weight=0.60은 프로젝트 선택이며 숫자는 초기 설계값이다.,verified
+ten_god,편인,discovery,clarity,0.55,intuition and unconventional ideas,no_external_basis,,,,pending
+element,wood,discovery,expansion,0.40,energy of growth and expansion,classical,『禮記』「月令」孟春之月; https://www.chinese-classics.org/read/confucius/li-ji/li-ji-yue-ling,입춘을 목의 성덕과 연결하고 같은 맹춘의 서술에서 초목이 싹트는 모습을 기술한다. 봄·목·생장의 연관에 한정한 근거다.,계절적 생장의 이미지를 expansion으로 새로운 탐색을 discovery로 번역했다. 이를 당일 목 신호에 적용하는 것과 경험 축의 선택은 프로젝트 설계다. weight=0.40은 초기 설계값이다.,verified
+element,fire,encounter,activation,0.40,visibility and outward activity,classical,『尚書』「洪範」五行段; https://ctext.org/shang-shu/great-plan/zh,불이 타오르며 위로 향하는 성질을 서술한다. 활동성이나 만남의 점수를 직접 제시하지는 않는다.,불의 상승 이미지를 activation과 외부 접촉의 encounter로 번역했다. 두 축의 선택과 weight=0.40은 프로젝트 설계이며 숫자는 초기 설계값이다.,verified
+element,earth,opportunity,grounding,0.40,stability and support,no_external_basis,,,,pending
+element,metal,opportunity,clarity,0.40,clarity and structure,classical,『尚書』「洪範」五行段; https://ctext.org/shang-shu/great-plan/zh,금을 가공·변형하는 성질을 서술한다. 금과 명료·기회의 직접 대응을 이 구절에서 확인한 것은 아니다.,형태를 다듬는 이미지를 clarity와 판단 가능한 기회의 opportunity로 번역했다. 이 비유와 weight=0.40은 프로젝트 설계이며 숫자는 초기 설계값이다.,verified
+element,water,encounter,receptivity,0.30,reception and sensitivity,no_external_basis,,,,pending
+element,water,encounter,flow,0.30,flow and movement,no_external_basis,,,,pending
+interaction,combination,encounter,receptivity,0.35,possibility of connection and union (He),no_external_basis,,,,pending
+interaction,clash,discovery,activation,0.25,change and unpredictability (Chong),no_external_basis,,,,pending
+natal_balance,deficient_element_active,opportunity,flow,0.30,a day that replenishes a lacking element,no_external_basis,외부 출처 미확인; 내부 구현: engine/saju_engine.py natal_chart·compute_saju 및 engine/combine_reading.py interpret_saju,원국에서 개수가 0인 오행이 당일 활성화되면 길하거나 흐름이 좋아진다는 문헌 근거는 이번 검토에서 확인하지 못했다.,개수가 0인 오행의 당일 등장을 보충의 비유로 읽어 opportunity와 flow를 부여했다. 용신 판단을 구현한 규칙은 아니다. weight=0.30은 초기 설계값이다.,pending
+natal_balance,excess_element_active,discovery,activation,0.15,a day that further amplifies an abundant element,no_external_basis,,,,pending

@@ -17,6 +17,7 @@ from .evidence import EvidenceIndex
 from .calibration import validate_feature_calibration, validate_calibration_sources
 from .routing import PreparedNetwork
 from .scoring import Targets, Weights, evaluate_edge, number
+from .reading_routing import validate_reading_weights, evaluate_reading_edge, routing_policy
 from .travel_time import (parse_time_budget, estimate_route_time, max_network_length,
                           POLICY_ID as TIME_POLICY_ID)
 
@@ -46,7 +47,7 @@ class Engine:
     def recommend(self, request: dict) -> dict:
         if not isinstance(request, dict):
             raise ValueError("Request must be a JSON object")
-        allowed = {"origin", "destination", "via", "weights", "profile_scores", "targets", "alpha", "max_snap_m", "lucky_radius_m", "lucky_limit", "time_budget"}
+        allowed = {"origin", "destination", "via", "weights", "profile_scores", "reading_weights", "targets", "alpha", "max_snap_m", "lucky_radius_m", "lucky_limit", "time_budget"}
         unknown = set(request) - allowed
         if unknown:
             raise ValueError("Unknown request fields: " + ", ".join(sorted(unknown)))
@@ -60,6 +61,10 @@ class Engine:
                    if "profile_scores" in request else Weights.from_dict(request.get("weights")))
         targets = Targets.from_dict(request.get("targets"))
         alpha = number(request.get("alpha", 1.0), "alpha", 0, 10)
+        reading_weights = (validate_reading_weights(request["reading_weights"])
+                           if "reading_weights" in request else None)
+        if reading_weights is not None and alpha != 1:
+            raise ValueError("The original reading cost uses a fixed coefficient")
         max_snap = number(request.get("max_snap_m", 150), "max_snap_m", 0.01, 500)
         radius = number(request.get("lucky_radius_m", 1600), "lucky_radius_m", 1, 5000)
         limit = request.get("lucky_limit", 1)
@@ -70,6 +75,10 @@ class Engine:
             e.id: evaluate_edge(self.features["edges"][e.id], e.length, weights, targets, alpha)
             for e in self.dataset.edges
         }
+        if reading_weights is not None:
+            for edge in self.dataset.edges:
+                scored[edge.id].update(evaluate_reading_edge(
+                    self.features["edges"][edge.id], edge.length, reading_weights))
         costs = {key: value["cost"] for key, value in scored.items()}
         trip = self.network.prepare(
             origin_lonlat=request["origin"], destination_lonlat=request["destination"],
@@ -148,6 +157,17 @@ class Engine:
                 "A budgeted route is the lowest original cost among a bounded candidate search; global constrained optimality is not claimed.",
                 "Snap links are estimated approaches, not verified walkable entrance paths. The buffer is not measured traffic or signal delay.",
             ])
+        if reading_weights is not None:
+            policy = routing_policy(reading_weights)
+            result["routing_policy"] = policy
+            result["geojson"]["routing_policy"] = policy
+            result["notes"][0] = (
+                "The original reading cost uses four supported street proxies, including place-type activity. "
+                "Water, sunlight, rest and culture are omitted because their required measurements are unavailable. "
+                "Five rounded sliders are a display/manual control; automatic route costs use the precise reading weights.")
+            for route in (personalized, shortest):
+                if route is not None:
+                    route["route"]["properties"]["routing_policy"] = policy
         return result
 
     def _lucky_stops(self, origin, scored, radius, limit):

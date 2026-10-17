@@ -36,8 +36,8 @@ class ComparisonTests(unittest.TestCase):
         edges = [Edge("a", "0", "1", [(x, y), (x + 100, y)], 100, {}),
                  Edge("b", "1", "2", [(x + 100, y), (x + 200, y)], 100, {})]
         features = {
-            "a": {"open": .2, "green": .2, "still": .2, "trees_within_radius": 2, "major_road_distance_m": 20},
-            "b": {"open": .8, "green": .8, "still": .8, "trees_within_radius": 10, "major_road_distance_m": 80},
+            "a": {"open": .2, "green": .2, "still": .2, "social": .2, "trees_within_radius": 2, "major_road_distance_m": 20},
+            "b": {"open": .8, "green": .8, "still": .8, "social": .8, "trees_within_radius": 10, "major_road_distance_m": 80},
         }
         service = object.__new__(ExploreService)
         service.engine = SimpleNamespace(edge_by_id={edge.id: edge for edge in edges}, features={"edges": features})

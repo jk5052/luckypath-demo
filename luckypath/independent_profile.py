@@ -1,65 +1,28 @@
-"""Independent analysis -> independent experience weights -> one route profile.
+"""Independent factual analyses, followed by the original route_maker rules.
 
-The two domain modules never consume each other's facts or interpretations.
-Fusion happens only after each has produced its own explained five scores.
+The sources are interpreted separately into events and qualities. Their
+qualities combine before the street matrix. Display sliders are an adapter;
+the automatic router receives the precise supported street-weight projection.
 """
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_HALF_UP
-import math
+from copy import deepcopy
 
-from .scoring import WEIGHT_KEYS
-
-
-PROFILE_VERSION = "independent-analysis-v2"
-FUSION_POLICY = "equal-experience-weights-v1"
+from .route_maker_reading import (
+    FUSION_POLICY, VERSION, combine_readings, compatibility_profile,
+    coverage, interpret_system, provenance,
+)
 
 
-def combine_profiles(saju, astrology):
-    """Give each independent analysis equal weight; round only the final mean.
-
-    Equal weight is an explicit experimental product setting, not a measured
-    accuracy or a synthesis of either tradition. Never silently drop a system.
-    """
-    profiles = {"saju": saju, "astrology": astrology}
-    scores, details = {}, {}
-    for key in WEIGHT_KEYS:
-        values = {}
-        for system, profile in profiles.items():
-            if not isinstance(profile, dict) or profile.get("status") != "ready":
-                raise ValueError("두 분석의 가중치가 모두 준비되어야 적용할 수 있어요.")
-            value = profile.get("score_details", {}).get(key, {}).get("unrounded")
-            if (isinstance(value, bool) or not isinstance(value, (int, float))
-                    or not math.isfinite(value) or not 1 <= value <= 10):
-                raise ValueError("분석 가중치가 유효하지 않아 적용하지 않았어요.")
-            values[system] = Decimal(str(value))
-        mean = (values["saju"] + values["astrology"]) / 2
-        rounded = int(mean.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
-        scores[key] = rounded
-        details[key] = {"saju": float(values["saju"]),
-                        "astrology": float(values["astrology"]),
-                        "unrounded": float(mean), "rounded": rounded,
-                        "difference": float(abs(values["saju"] - values["astrology"]))}
-    return {
-        "status": "ready", "policy_id": FUSION_POLICY,
-        "profile_scores": scores, "score_details": details,
-        "policy": {
-            "id": FUSION_POLICY, "system_weights": {"saju": .5, "astrology": .5},
-            "stage": "after_independent_experience_weights",
-            "rounding": "mean of unrounded scores, then nearest integer with half up",
-            "externally_validated": False,
-            "description": "각 분석이 독립적으로 만든 경험 중요도를 동일 비중으로 평균해 한 경로에 적용해요.",
-            "disagreement": "두 분석의 차이는 표에 남기며 일치도·확률로 바꾸지 않아요.",
-        },
-    }
+PROFILE_VERSION = VERSION
 
 
 def build_independent_profile(payload):
     from .analysis_input import prepare_input
     context = prepare_input(payload)
-    results = {}
-    # Separate lazy imports keep dependency failures isolated and never activate
-    # the old mixed-element adapter as a fallback.
+    results, readings = {}, {}
+    # The providers only receive shared validated input, never each other's
+    # chart or interpretation. No approximate or single-source fallback.
     for system in ("saju", "astrology"):
         try:
             if system == "saju":
@@ -68,30 +31,46 @@ def build_independent_profile(payload):
             else:
                 from .astrology_analysis import analyze_astrology
                 result = analyze_astrology(context)
-            if not isinstance(result, dict) or not isinstance(result.get("profile"), dict):
-                raise ValueError("Invalid analysis contract")
-            if result["profile"].get("status") == "ready":
-                # Validate before fusion so malformed provider results are
-                # isolated just like provider failures, never a partial blend.
-                combine_profiles(result["profile"], result["profile"])
-            results[system] = result
+            reading = interpret_system(system, result)
+            result = deepcopy(result)
+            result["profile"] = compatibility_profile(reading)
+            # This former field described the superseded five-axis policy.
+            if system == "saju":
+                result["analysis"]["today"]["profile_uses"] = (
+                    "Original CSV rules: daily stem relation, active elements, "
+                    "daily-to-natal branch pairs and confirmed visible element counts."
+                )
+            results[system], readings[system] = result, reading
         except Exception:
-            label = "사주" if system == "saju" else "점성술"
+            label = "Saju" if system == "saju" else "Astrology"
+            reason = f"The {label} analysis could not be completed. Check the calculation provider and its local data."
             results[system] = {
                 "system": system, "status": "error", "highlights": [],
-                "omissions": [{"field": system, "reason": f"{label} 분석기를 실행하지 못했어요. 설치와 계산 데이터 상태를 확인해 주세요."}],
+                "omissions": [{"field": system, "reason": reason}],
                 "profile": {"status": "unavailable", "profile_scores": None},
             }
-    combined = None
-    if all(result.get("profile", {}).get("status") == "ready" for result in results.values()):
-        combined = combine_profiles(results["saju"]["profile"], results["astrology"]["profile"])
+            readings[system] = {"status": "unavailable", "event": None, "quality": None,
+                                "evidence": [], "source_street_weights": None, "routing_weights": None,
+                                "signals": {}, "omissions": [{"field": system, "reason": reason}]}
+    reading = combine_readings(readings["saju"], readings["astrology"])
+    combined = compatibility_profile(reading, combined=True) if reading else None
+    if reading is None:
+        reading = {"version": VERSION, "status": "unavailable", **readings,
+                   "combined": None, "routing_weights": None, "source_street_weights": None,
+                   "coverage": coverage(), "provenance": provenance()}
+    reading["sources"] = {system: {"analysis_version": result.get("analysis_version"),
+                                   "provider": result.get("provider")}
+                          for system, result in results.items()}
     return {
         "schema_version": 2, "profile_version": PROFILE_VERSION,
         "target": {"date": context["target_local"].date().isoformat(),
-                   "timezone": "America/New_York", "reference": "뉴욕 현지 시각 정오"},
-        "systems": results, "combined": combined,
+                   "timezone": "America/New_York", "reference": "New York local noon"},
+        "systems": results, "combined": combined, "route_maker_reading": reading,
         "profile_status": "ready" if combined else "unavailable",
-        "notes": ["달력·천체 계산과 경험 가중치 변환은 별도예요.",
-                  "두 분석의 경험 가중치와 최종 50:50 비중은 검토 가능한 실험 규칙이에요.",
-                  "출생 입력·분석 차트는 경로 요청이나 다운로드에 포함하지 않아요."],
+        "notes": [
+            "Calendar and astronomical positions are separate from experimental interpretation rules.",
+            "Original Saju and astrology rules produce separate events and qualities, combined 50:50 before the eight-axis street matrix.",
+            "Four connected GIS proxies affect the live route; water, sunlight, rest and culture remain visible but are omitted from route cost.",
+            "Birth inputs and analysis charts are not included in route requests or downloads.",
+        ],
     }

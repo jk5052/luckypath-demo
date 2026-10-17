@@ -247,3 +247,31 @@ test('downloads include time policy and estimates but allowlist profile provenan
   response.personalized=null;response.budget.status='infeasible';
   assert.equal(routeDownload(response,request,source).properties.time_estimates.personalized,null);
 });
+
+
+test('automatic requests retain exact supported weights and downloads exclude reading details',()=>{
+  const weights={green:.232456789,quiet:.267543211,open_sky:.2,vibrant:.3};
+  const state={origin:[-73.96,40.715],destination:[-73.961,40.716],scores:profile,time_budget:TIME_BUDGET_DEFAULTS,
+    reading_weights:weights,birth_date:'PRIVATE_BIRTH',reading:{chart:'PRIVATE_CHART'}};
+  const request=routeRequestSnapshot(state);
+  assert.deepEqual(request.reading_weights,weights);weights.green=1;
+  assert.equal(request.reading_weights.green,.232456789);
+  const response=timedResult();response.geojson={type:'FeatureCollection',features:[]};
+  const output=routeDownload(response,request,{kind:'route-maker-reading',analysis_version:'route-maker-reading-v1',birth_date:'PRIVATE_BIRTH'});
+  assert.equal(output.properties.profile_source.kind,'route-maker-reading');
+  assert.deepEqual(output.properties.reading_weights,request.reading_weights);
+  assert.doesNotMatch(JSON.stringify({request,output}),/PRIVATE|birth_date|chart/);
+  assert.ok(!('reading_weights' in routeRequestSnapshot({...state,reading_weights:null})));
+});
+
+test('route requests reject partial, extra and invalid reading weights rather than silently falling back',()=>{
+  const valid={green:.2,quiet:.3,open_sky:.2,vibrant:.3};
+  for(const weights of [{...valid,green:NaN},{...valid,green:true},{green:.2,quiet:.3,open_sky:.5},
+    {...valid,culture:0},{...valid,vibrant:-1},{...valid,green:.9}])
+    assert.throws(()=>routeRequestSnapshot({origin:[0,0],destination:[0,1],scores:profile,time_budget:TIME_BUDGET_DEFAULTS,reading_weights:weights}),/reading weights/);
+});
+
+test('automatic route explanation includes street activity and manual explanation remains unchanged',()=>{
+  assert.match(routeExplanation(result(false),profile,{green:.1,quiet:.1,open_sky:.1,vibrant:.7}),/street activity.*four available street indicators/);
+  assert.match(routeExplanation(result(true),profile,{green:.1,quiet:.1,open_sky:.1,vibrant:.7}),/are the same/);
+});

@@ -2,8 +2,17 @@ LuckyPath public demo - deployment guide
 
 LuckyPath compares a personalized walking route with the shortest route in
 Williamsburg, Brooklyn. Choose an origin, destination and available time.
-Optional Saju and astrology analyses independently produce experimental
-experience priorities, which are combined into one route recommendation.
+Optional Saju and astrology analyses feed the original route_maker rule CSVs.
+Each produces three experience types and six qualities. Their 50:50 mean is
+projected through the original six-by-eight matrix into eight street weights.
+Four measured proxies (greenery, major-road separation, building clearance and
+place-type activity) are retained and renormalized for the original cost formula:
+length * (1.6 - weighted_proxy_fit). Water, sunlight, rest and culture are shown
+as unmeasured and omitted from routing, never silently given zero scores.
+The eight-attribute interpretation is preserved; the full original eight-attribute
+routing model is not claimed. Exact calendar/astronomical providers remain the
+current lunar-python and Kerykeion/libephemeris engines. Manual sliders retain
+the earlier Grasshopper route model. See luckypath/route_maker_rules/README.txt.
 These interpretation rules are not scientifically validated predictions.
 
 Application code: AGPL-3.0-only (see LICENSE). Third-party code and data retain

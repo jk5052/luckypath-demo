@@ -1,8 +1,18 @@
-import {createRevisionGate} from './model.js';
+import {createRevisionGate,readingRouteWeights} from './model.js';
 
 const $=id=>document.getElementById(id);
 const names={open:'Openness',green:'Greenery',still:'Quiet',social:'Social',access:'Amenities'};
 const systems={saju:'Saju',astrology:'Astrology'};
+const events={encounter:'Encounter',opportunity:'Opportunity',discovery:'Discovery'};
+const qualities={activation:'Activation',receptivity:'Receptivity',clarity:'Clarity',expansion:'Expansion',grounding:'Grounding',flow:'Flow'};
+const streetNames={green:'Greenery',water:'Water',sunlight:'Sunlight',open_sky:'Openness',quiet:'Quiet',vibrant:'Street activity',rest:'Rest',culture:'Culture'};
+const percent=value=>Number.isFinite(value)?`${(value*100).toFixed(1)}%`:'—';
+function readingSummary(reading){
+  const event=Object.entries(reading?.combined?.event||{}).sort((a,b)=>b[1]-a[1])[0]?.[0];
+  const top=Object.entries(reading?.combined?.quality||{}).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([key])=>qualities[key]);
+  return {event:events[event]||'Your reading',qualities:top.join(' + ')};
+}
+
 const applyLabel='Continue';
 const storageKey='luckypath.profile.v1';
 const savedFields=['name','birth_date','birth_time','birth_unknown','birth_timezone','birth_latitude','birth_longitude','birth_house_system','birth_fold'];
@@ -34,17 +44,18 @@ function table(caption,columns,rows,className='analysis-table'){
   element.append(body);wrap.append(element);return wrap;
 }
 function validResponse(result){
-  return result?.schema_version===2&&result.systems?.saju&&result.systems?.astrology&&result.target?.date;
+  return result?.schema_version===2&&result.profile_version==='route-maker-reading-v1'&&result.systems?.saju&&result.systems?.astrology&&result.target?.date;
 }
 function readyToApply(result){
-  return result?.profile_status==='ready'&&result.combined?.status==='ready'&&
+  try{readingRouteWeights(result?.combined?.routing_weights);}catch{return false;}
+  return result?.route_maker_reading?.status==='ready'&&result?.profile_status==='ready'&&result.combined?.status==='ready'&&
     Object.keys(systems).every(key=>result.systems[key].profile?.status==='ready')&&
     Object.keys(names).every(key=>Number.isInteger(result.combined.profile_scores?.[key])&&result.combined.profile_scores[key]>=1&&result.combined.profile_scores[key]<=10);
 }
 
-// Only five final numeric preferences enter the route layer. Explicit save keeps
+// Only final numeric preferences and four supported weights enter routing. Explicit save keeps
 // whitelisted birth inputs in this browser; calculations and keys are never saved.
-export function createProfileController({api,onApply,onIdentity=()=>{}}){
+export function createProfileController({api,onApply,onIdentity=()=>{},onInvalidate=()=>{}}){
   const gate=createRevisionGate();
   let controller=null,profile=null,ready=false,mode='manual',inputsChanged=false;
   let savedProfile=null,storageChecked=false;
@@ -99,14 +110,16 @@ export function createProfileController({api,onApply,onIdentity=()=>{}}){
   function message(text,error=false){$('profile-status').textContent=text;$('profile-status').classList.toggle('error',error);}
   function cancel(){gate.invalidate();controller?.abort();controller=null;$('profile-apply').disabled=!ready;$('profile-apply').textContent=applyLabel;}
   function showSource(){
-    const automatic=mode==='automatic';
-    $('profile-source').textContent=automatic?`${profile.target.date} · Preferences from both analyses`:profile?'Manually adjusted preferences':'Your selected preferences';
+    const automatic=mode==='automatic'&&!inputsChanged&&readyToApply(profile);
+    const reading=profile?.route_maker_reading,summary=readingSummary(reading),card=$('reading-trip');
+    if(card){card.hidden=!automatic;if(automatic){$('reading-trip-event').textContent=summary.event;$('reading-trip-qualities').textContent=summary.qualities;$('reading-trip-weights').textContent=Object.entries(profile.combined.routing_weights).map(([key,value])=>`${streetNames[key]} ${percent(value)}`).join(' · ');}}
+    $('profile-source').textContent=automatic?`${profile.target.date} · Original reading applied`:profile?'Manually adjusted preferences':'Your selected preferences';
     if(inputsChanged&&profile&&mode==='stale')$('profile-source').textContent='Previous suggestion · recalculate after changing birth details or date';
-    $('profile-state').textContent=inputsChanged?'Your details have changed. Recalculate to update the suggestions.':automatic?'Independent Saju and astrology scores inform one recommended route.':'These sliders reflect your manual preferences.';
+    $('profile-state').textContent=inputsChanged?'Your details have changed. Recalculate to update the suggestions.':automatic?'Saju + astrology → six experience qualities → street weights → one route.':'These sliders reflect your manual preferences.';
     if(profile&&!readyToApply(profile))$('profile-state').textContent='Both analyses must be ready. Your sliders have not changed.';
     $('profile-reapply').hidden=!profile||inputsChanged||automatic||!readyToApply(profile);
   }
-  function manual(){cancel();mode='manual';showSource();message('Your selected preferences will shape the route.');}
+  function manual(){cancel();mode='manual';onInvalidate();showSource();message('Your selected preferences will shape the route.');}
   function apply(){
     if(!profile||inputsChanged||!readyToApply(profile))return;
     mode='automatic';onApply({...profile.combined.profile_scores});showSource();
@@ -116,43 +129,64 @@ export function createProfileController({api,onApply,onIdentity=()=>{}}){
     const saved=identity();
     if(savedProfile)storageMessage(saved?'Your current details are saved in this browser.':'Your details have changed. Save again to keep these changes.');
     if(event?.target?.id==='profile-name')return;
-    cancel();inputsChanged=!!profile;if(mode==='automatic')mode='stale';showSource();message(profile?'Your details have changed. Recalculate to apply the new values.':'Complete your details, then continue.');
+    cancel();inputsChanged=!!profile;if(mode==='automatic')mode='stale';onInvalidate();showSource();message(profile?'Your details have changed. Recalculate to apply the new values.':'Complete your details, then continue.');
   }
   function renderSystem(key,result){
+    // Keep the exact astronomical/calendar facts while using the original
+    // CSV rule IDs for interpretation evidence, not legacy five-score IDs.
     result=englishProfileSystem(key,result);
-    const section=node('section',`system-analysis ${key}`);
+    const section=node('section',`system-analysis ${key}`),reading=profile.route_maker_reading?.[key];
     section.append(node('h3','system-analysis-title',systems[key]));
     if(result.provider){const provider=result.provider;section.append(node('p','provider-line',`${provider.name||systems[key]}${provider.version?` ${provider.version}`:''}${key==='astrology'?' · JPL ephemeris data':''}`));}
     const highlights=node('dl','analysis-highlights');
-    for(const item of result.highlights||[]){highlights.append(node('dt','',item.label),node('dd','',item.value));}
+    for(const item of result.highlights||[])highlights.append(node('dt','',item.label),node('dd','',item.value));
     section.append(highlights);
-    for(const block of result.display_sections||[])section.append(table(block.title,block.columns,block.rows));
-    const experiment=result.profile;
-    if(experiment?.status==='ready'){
-      section.append(node('h4','','How this analysis shapes your preferences'));
-      if(experiment.policy?.description)section.append(node('p','field-help',experiment.policy.description));
-      const evidence=node('details','analysis-evidence');
-      evidence.append(node('summary','',`${(experiment.evidence||[]).length} inputs and experimental scores`));
-      for(const item of experiment.evidence||[]){
-        const row=node('article','evidence-row');row.append(node('strong','',item.label||item.rule_id),node('p','',item.fact));
-        row.append(node('p','evidence-vector',Object.keys(names).map(axis=>`${names[axis]} ${item.vector?.[axis]??'—'}`).join(' · ')));
-        if(Number.isFinite(item.weight))row.append(node('p','field-help',`Weight ${number(item.weight)} · rule ${item.rule_id}`));
+    if(reading){
+      section.append(table(`${systems[key]} interpretation`,['Quality','Score'],Object.entries(qualities).map(([axis,label])=>[label,number(reading.quality?.[axis])])));
+      const evidence=node('details','analysis-evidence'),items=reading.evidence||[];
+      evidence.append(node('summary','',`${items.length} original rule contributions`));
+      for(const item of items){
+        const row=node('article','evidence-row');row.append(node('strong','',item.detail||item.label||item.rule_id||item.id||'Rule contribution'),node('p','',item.explanation||item.fact||item.reason||item.description||''));
+        if(typeof item.quality==='string')row.append(node('p','evidence-vector',`${events[item.event]||item.event} → ${qualities[item.quality]||item.quality} · contribution ${number(item.score)}`));
+        if(Number.isFinite(item.rule_weight))row.append(node('p','field-help',`Rule weight ${number(item.rule_weight)} × signal strength ${number(item.strength)}`));
+        if(item.reference){const reference=item.reference.startsWith('외부 출처 미확인')?'No external source verified. Internal implementation: saju_engine.py natal_chart / compute_saju; combine_reading.py interpret_saju.':profileText(item.reference);row.append(node('p','field-help',`Symbolic reference: ${reference}`));}
+        if(item.verification_scope)row.append(node('p','field-help',item.verification_scope));
+        const vector=item.quality||item.quality_vector||item.vector;
+        if(vector&&typeof vector==='object')row.append(node('p','evidence-vector',Object.entries(qualities).filter(([axis])=>Number.isFinite(vector[axis])).map(([axis,label])=>`${label} ${number(vector[axis])}`).join(' · ')));
+        if(Number.isFinite(item.weight))row.append(node('p','field-help',`Contribution weight ${number(item.weight)}`));
+        if(item.rule_id)row.append(node('p','policy-label',`Rule: ${item.rule_id}`));
         evidence.append(row);
       }
-      section.append(evidence,node('p','policy-label',`Experimental policy: ${experiment.policy_id}`));
+      section.append(evidence);
+      for(const omission of reading.omissions||[])section.append(node('p','field-help',typeof omission==='string'?omission:omission.reason||omission.label||''));
     }
+    const facts=node('details','analysis-facts');facts.append(node('summary','',`Calculated ${systems[key]} facts`));
+    for(const block of result.display_sections||[])facts.append(table(block.title,block.columns,block.rows));
+    section.append(facts);
     return section;
   }
   function render(){
     $('profile-result').hidden=false;
-    const usable=readyToApply(profile),scores=profile.combined?.profile_scores;
-    $('profile-summary').textContent=usable?`${Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([key])=>names[key]).join(' + ')}`:'Review your analysis';
-    $('profile-score-chips').replaceChildren(...(usable?Object.entries(names).map(([key,label])=>node('span','',`${label} ${scores[key]}`)):[]));
+    const usable=readyToApply(profile),reading=profile.route_maker_reading,summary=readingSummary(reading);
+    $('profile-summary').textContent=usable?`${summary.event} · ${summary.qualities}`:'Review your analysis';
+    $('profile-score-chips').replaceChildren(...(usable?Object.entries(events).map(([key,label])=>node('span','',`${label} ${number(reading.combined.event[key])}`)):[]));
     const breakdown=$('profile-breakdown');breakdown.replaceChildren();
     if(usable){
-      const rows=Object.entries(names).map(([key,label])=>{const detail=profile.combined.score_details[key];return[label,number(detail.saju),number(detail.astrology),`${detail.rounded}`];});
-      breakdown.append(table('Independent preferences → final sliders',['Experience','Saju','Astrology','Final'],rows,'fusion-table'));
-      breakdown.append(node('p','field-help','The two independent scores are averaged 50:50, then rounded once. Equal weighting is an experimental setting, not a measure of agreement or predictive accuracy.'));
+      breakdown.append(node('p','field-help','An experimental reading of the day: three themes and six experience qualities. These are design interpretations, not predictions.'));
+      const details=node('details','profile-details');details.append(node('summary','','From two readings to one route'));
+      for(const [title,labels,field] of [['Three event themes',events,'event'],['Six experience qualities',qualities,'quality']]){
+        details.append(table(title,['Theme','Saju','Astrology','Combined'],Object.entries(labels).map(([key,label])=>[label,number(reading.saju[field]?.[key]),number(reading.astrology[field]?.[key]),number(reading.combined[field]?.[key])])));
+      }
+      details.append(node('p','field-help','Saju and astrology are averaged 50:50 at the event and quality stages. The six combined qualities enter the original quality-to-street matrix. Event themes describe the reading; the quality scores set the route weights.'));
+      const routeWeights=reading.routing_weights,omitted=new Set((reading.coverage?.omitted||[]).map(item=>item.source));
+      details.append(table('Eight original street weights',['Street quality','Original','Used for route'],Object.entries(reading.source_street_weights||{}).map(([key,value])=>[streetNames[key]||key,percent(value),omitted.has(key)?'Not measured':percent(routeWeights?.[key])])));
+      details.append(node('p','field-help','The four supported indicators are renormalized for routing at full precision. Water, sunlight, rest and culture do not influence this demo route; missing indicators are not treated as zero-quality streets.'));
+      for(const item of reading.coverage?.supported||[])details.append(node('p','field-help',`${item.label}: ${item.proxy}`));
+      if(reading.coverage?.access)details.append(node('p','field-help',reading.coverage.access));
+      for(const item of reading.coverage?.omitted||[])details.append(node('p','field-help',`${item.label||streetNames[item.source]||item.source}: ${item.reason}`));
+      const provenance=reading.provenance;
+      if(provenance){const source=node('details','analysis-facts');source.append(node('summary','','Rule sources & calculation scope'),node('p','field-help',provenance.origin),node('p','field-help',provenance.pipeline),node('p','field-help',provenance.rounding));for(const difference of provenance.differences_from_original||[])source.append(node('p','field-help',difference));details.append(source);}
+      breakdown.append(details);
     }
     const chart=$('profile-chart');chart.replaceChildren(node('p','field-help',`${profile.target.date} · ${profileText(profile.target.reference)||'Noon in New York'}`));
     for(const key of Object.keys(systems))chart.append(renderSystem(key,profile.systems[key]));
@@ -165,7 +199,7 @@ export function createProfileController({api,onApply,onIdentity=()=>{}}){
   }
   async function calculate(event){
     event.preventDefault();if(!ready)return;
-    cancel();const token=gate.invalidate();controller=new AbortController();
+    cancel();if(mode==='automatic'){mode='stale';inputsChanged=true;onInvalidate();showSource();}const token=gate.invalidate();controller=new AbortController();
     const payload={birth_date:$('birth-date').value,birth_time:$('birth-unknown').checked?null:$('birth-time').value,birth_timezone:$('birth-timezone').value.trim(),target_date:$('profile-date').value};
     if($('birth-fold').value!=='')payload.birth_fold=Number($('birth-fold').value);
     const latitude=$('birth-latitude').value.trim(),longitude=$('birth-longitude').value.trim();
@@ -189,7 +223,7 @@ export function createProfileController({api,onApply,onIdentity=()=>{}}){
   function clear(){
     cancel();$('birth-form').reset();$('profile-date').value=ready.default_target_date||'';$('birth-time').disabled=false;$('birth-time').required=true;$('birth-fold').disabled=false;
     if($('profile-name'))$('profile-name').value='';
-    profile=null;inputsChanged=false;mode='manual';$('profile-result').hidden=true;
+    profile=null;inputsChanged=false;mode='manual';onInvalidate();$('profile-result').hidden=true;
     for(const id of ['profile-chart','profile-breakdown','profile-score-chips','profile-omissions'])$(id).replaceChildren();
     $('profile-summary').textContent='';showSource();message('Birth inputs and analysis cleared. You can still adjust the current sliders.');identity();
     storageMessage(savedProfile?'Current inputs cleared. Saved details remain in this browser; use Delete saved details to remove them.':'Save to remember your details in this browser.');
@@ -205,7 +239,7 @@ export function createProfileController({api,onApply,onIdentity=()=>{}}){
   $('birth-unknown').addEventListener('change',syncTimeControls);
   $('profile-reapply').addEventListener('click',apply);$('profile-clear').addEventListener('click',clear);
   $('profile-save')?.addEventListener('click',save);$('profile-delete-saved')?.addEventListener('click',deleteSaved);
-  return {manual,clear,mode:()=>mode,routeSource(){return mode==='automatic'&&readyToApply(profile)?{kind:'independent-analyses',analysis_version:profile.profile_version,saju_policy:profile.systems.saju.profile.policy_id,astrology_policy:profile.systems.astrology.profile.policy_id,fusion_policy:profile.combined.policy_id}:{kind:'manual'};},configure(config){ready=config;$('profile-date').value=config.default_target_date;$('birth-date').max=config.birth_date_max;$('profile-apply').disabled=false;restoreSaved();}};
+  return {manual,clear,mode:()=>mode,routeWeights(){return mode==='automatic'&&!inputsChanged&&readyToApply(profile)?readingRouteWeights(profile.combined.routing_weights):null;},routeSource(){return mode==='automatic'&&!inputsChanged&&readyToApply(profile)?{kind:'route-maker-reading',analysis_version:profile.profile_version,saju_policy:profile.systems.saju.profile.policy_id,astrology_policy:profile.systems.astrology.profile.policy_id,fusion_policy:profile.combined.policy_id}:{kind:'manual'};},configure(config){ready=config;$('profile-date').value=config.default_target_date;$('birth-date').max=config.birth_date_max;$('profile-apply').disabled=false;restoreSaved();}};
 }
 
 // Presentation-only English adapter. The server's calculated facts and scores
@@ -335,11 +369,13 @@ function astrologyPresentation(result){
   return {highlights,display_sections,evidence};
 }
 export function englishProfileSystem(key,result){
-  const presentation=key==='saju'?sajuPresentation(result):astrologyPresentation(result);
+  const original=!!result.profile?.policy_id?.startsWith('route-maker-');
+  const facts=original?{...result,profile:{...result.profile,evidence:[]}}:result;
+  const presentation=key==='saju'?sajuPresentation(facts):astrologyPresentation(facts);
   return {...result,
     highlights:presentation?.highlights||(result.highlights||[]).map(item=>({label:profileText(item.label),value:profileText(item.value)})),
     display_sections:presentation?.display_sections||result.display_sections||[],
     omissions:(result.omissions||[]).map(item=>({...item,reason:profileText(item.reason)})),
-    profile:result.profile?{...result.profile,evidence:presentation?.evidence||result.profile.evidence||[],
-      policy:{...result.profile.policy,description:key==='saju'?'An experimental mapping from Ten Gods relationships to experience preferences.':'An experimental mapping from natal placements, today’s Moon and close major aspects to experience preferences.'}}:result.profile};
+    profile:result.profile?{...result.profile,evidence:original?(result.profile.evidence||[]):(presentation?.evidence||result.profile.evidence||[]),
+      policy:{...result.profile.policy,description:original?result.profile.policy?.description:key==='saju'?'An experimental mapping from Ten Gods relationships to experience preferences.':'An experimental mapping from natal placements, today’s Moon and close major aspects to experience preferences.'}}:result.profile};
 }

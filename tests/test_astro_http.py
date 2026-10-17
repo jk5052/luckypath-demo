@@ -78,7 +78,7 @@ class AstroHTTPTests(unittest.TestCase):
         self.assertEqual(headers["Cache-Control"], "no-store")
         self.assertNotIn("Set-Cookie", headers)
         self.assertEqual(payload["schema_version"], 2)
-        self.assertEqual(payload["profile_version"], "independent-analysis-v2")
+        self.assertEqual(payload["profile_version"], "route-maker-reading-v1")
         self.assertEqual(payload["profile_status"], "ready", payload)
         self.assertEqual(set(payload["systems"]), {"saju", "astrology"})
         for legacy in ("profile_scores", "natal", "today", "component_details"):
@@ -92,7 +92,8 @@ class AstroHTTPTests(unittest.TestCase):
                 self.assertNotIsInstance(value, bool)
                 self.assertGreaterEqual(value, 1)
                 self.assertLessEqual(value, 10)
-        self.assertEqual(payload["combined"]["policy"]["stage"], "after_independent_experience_weights")
+        self.assertEqual(payload["combined"]["policy"]["stage"], "after_independent_event_quality_before_street_matrix")
+        self.assertEqual(payload["combined"]["routing_weights"], payload["route_maker_reading"]["routing_weights"])
         json.dumps(payload, allow_nan=False)
 
     def test_config_exposes_calendar_current_target_date_and_unvalidated_local_policy(self):
@@ -101,7 +102,7 @@ class AstroHTTPTests(unittest.TestCase):
         self.assertTrue(payload["capabilities"]["astrology_interpretation_connected"])
         config = payload["profile"]
         self.assertEqual(config["schema_version"], 2)
-        self.assertEqual(config["version"], "independent-analysis-v2")
+        self.assertEqual(config["version"], "route-maker-reading-v1")
         self.assertEqual(config["analysis_systems"], ["saju", "astrology"])
         self.assertEqual(config["calendar"], "gregorian")
         self.assertEqual(config["target_timezone"], "America/New_York")
@@ -141,10 +142,9 @@ class AstroHTTPTests(unittest.TestCase):
         self.assertEqual(set(payload["combined"]["profile_scores"]), set(ROUTE_INPUT["profile_scores"]))
 
     def test_missing_provider_never_falls_back_to_one_system_or_the_old_blended_policy(self):
-        ready = {"system": "saju", "status": "ready", "profile": {
-            "status": "ready", "profile_scores": dict(ROUTE_INPUT["profile_scores"]),
-            "score_details": {key: {"unrounded": 5} for key in ROUTE_INPUT["profile_scores"]},
-        }}
+        from luckypath.analysis_input import prepare_input
+        from luckypath.saju_analysis import analyze_saju
+        ready = analyze_saju(prepare_input(PROFILE_INPUT))
         def missing(_context):
             raise RuntimeError("private-provider-path /Users/private-canary")
         modules = {
@@ -218,7 +218,7 @@ class AstroHTTPTests(unittest.TestCase):
         self.assertEqual(vars(self.explore), service_state)
 
     def test_route_boundary_rejects_raw_birth_fields_and_profile_result_objects(self):
-        # The route API accepts five numbers, never the birth record. This uses
+        # The route API accepts numeric preferences, never the birth record. This uses
         # Engine.recommend's real unknown-field check before any geometry work.
         for extra in ({"birth_date": PROFILE_INPUT["birth_date"]},
                       {"birth_time": PROFILE_INPUT["birth_time"]},

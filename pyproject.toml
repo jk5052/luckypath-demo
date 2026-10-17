@@ -19,4 +19,4 @@ luckypath = "luckypath.cli:main"
 include = ["luckypath*"]
 
 [tool.setuptools.package-data]
-luckypath = ["web/*.html", "web/*.css", "web/*.js", "web/*.json", "web/vendor/*.js", "web/vendor/*.css", "web/vendor/*.json", "web/vendor/LICENSE", "web/vendor/images/*.png"]
+luckypath = ["web/*.html", "web/*.css", "web/*.js", "web/*.json", "web/vendor/*.js", "web/vendor/*.css", "web/vendor/*.json", "web/vendor/LICENSE", "web/vendor/images/*.png", "route_maker_rules/*.csv", "route_maker_rules/*.json", "route_maker_rules/*.txt"]

@@ -1,0 +1,18 @@
+{
+  "version": "route-maker-bridge-v1",
+  "origin": "route_maker/config",
+  "files": [
+    {
+      "file": "saju_rules.csv",
+      "sha256": "ae7f789221f6de3c21eb0563f6509c2954d2ace82b4f319928ed4e113b894423"
+    },
+    {
+      "file": "astrology_rules.csv",
+      "sha256": "38b6e1e393387d92863b2ef8385343f0247275925adf9d040774aa5d8828509e"
+    },
+    {
+      "file": "quality_street_matrix.csv",
+      "sha256": "35edbd9bbd80eb9c933f7f8fd7743d1eb4316158fe48c1c2132836c4c82c35d6"
+    }
+  ]
+}
